@@ -9,5 +9,4 @@ import java.util.List;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart, String> {
-    void deleteAll(List<CartDetail> cartDetails);
 }

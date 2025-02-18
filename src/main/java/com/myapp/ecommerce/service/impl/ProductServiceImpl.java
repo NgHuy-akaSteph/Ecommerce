@@ -10,13 +10,10 @@ import com.myapp.ecommerce.entity.Product;
 import com.myapp.ecommerce.entity.Tag;
 import com.myapp.ecommerce.exception.AppException;
 import com.myapp.ecommerce.exception.ErrorCode;
-import com.myapp.ecommerce.mapper.CategoryMapper;
 import com.myapp.ecommerce.mapper.ProductMapper;
-import com.myapp.ecommerce.mapper.TagMapper;
-import com.myapp.ecommerce.repository.CartRepository;
+import com.myapp.ecommerce.repository.CartDetailRepository;
 import com.myapp.ecommerce.repository.CategoryRepository;
 import com.myapp.ecommerce.repository.OrderDetailRepository;
-import com.myapp.ecommerce.repository.OrderRepository;
 import com.myapp.ecommerce.repository.ProductRepository;
 import com.myapp.ecommerce.repository.TagRepository;
 import com.myapp.ecommerce.service.ProductService;
@@ -24,7 +21,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -42,11 +38,8 @@ public class ProductServiceImpl implements ProductService {
     CategoryRepository categoryRepository;
     TagRepository tagRepository;
     ProductMapper productMapper;
-    CategoryMapper categoryMapper;
-    TagMapper tagMapper;
-    CartRepository cartRepository;
-    OrderRepository orderRepository;
-    private final OrderDetailRepository orderDetailRepository;
+    CartDetailRepository cartDetailRepository;
+    OrderDetailRepository orderDetailRepository;
 
     @Override
     public ProductResponse create(ProductCreationRequest request) {
@@ -127,8 +120,8 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        cartRepository.deleteAll(product.getCartDetails());
-        orderRepository.deleteAll(product.getOrderDetails());
+        cartDetailRepository.deleteAll(product.getCartDetails());
+        orderDetailRepository.deleteAll(product.getOrderDetails());
         productRepository.delete(product);
     }
 

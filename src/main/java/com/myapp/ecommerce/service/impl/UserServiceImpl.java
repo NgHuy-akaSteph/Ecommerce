@@ -129,4 +129,24 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByUsername(username);
     }
 
+    @Override
+    public void updateUserToken(String refreshToken, String username) {
+        User currentUser = getUserByUsername(username);
+        if(currentUser != null){
+            currentUser.setRefreshToken(refreshToken);
+            userRepository.save(currentUser);
+        }
+    }
+
+    @Override
+    public void handleUserLogout(User user) {
+        user.setRefreshToken(null);
+        userRepository.save(user);
+    }
+
+    @Override
+    public User getUserByUsernameAndRefreshToken(String username, String refreshToken) {
+        return userRepository.findByRefreshTokenAndUsername(refreshToken, username);
+    }
+
 }

@@ -1,10 +1,8 @@
 package com.myapp.ecommerce.dto.response;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.myapp.ecommerce.entity.Role;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,14 +16,13 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonPropertyOrder(alphabetic = true)
-public class UserResponse {
+public class AuthenticationResponse {
 
-    @JsonProperty("_id")
-    String id;
-    String username;
-    String name;
-    String address;
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    Role role;
+    @JsonProperty("access_token")
+    String accessToken;
 
+    @JsonProperty("refresh_token")
+    String refreshToken;
+
+    UserResponse user;
 }
