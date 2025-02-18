@@ -1,6 +1,7 @@
 package com.myapp.ecommerce.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.myapp.ecommerce.entity.Role;
@@ -24,6 +25,7 @@ public class UserResponse {
     String username;
     String name;
     String address;
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     Role role;
 
 }

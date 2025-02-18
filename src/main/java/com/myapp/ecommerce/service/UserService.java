@@ -29,4 +29,9 @@ public interface UserService {
 
     boolean isExistByUsername(String username);
 
+    void updateUserToken(String refreshToken, String username);
+
+    void handleUserLogout(User user);
+
+    User getUserByUsernameAndRefreshToken(String username, String refreshToken);
 }

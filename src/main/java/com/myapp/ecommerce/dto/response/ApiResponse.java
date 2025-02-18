@@ -23,5 +23,7 @@ public class ApiResponse<T> {
     @Builder.Default
     Object message = "OK";
 
+    String error;
+
     private T data;
 }

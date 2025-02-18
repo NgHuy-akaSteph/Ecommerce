@@ -22,8 +22,8 @@ import lombok.experimental.FieldDefaults;
 @Entity
 public class InvalidatedToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(columnDefinition = "TEXT")
     String accessToken;

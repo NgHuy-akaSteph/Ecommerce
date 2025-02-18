@@ -10,7 +10,10 @@ public enum ErrorCode {
 
     //AUTHENTICATION
     UNCATEGORIZED_EXCEPTION(500, "Uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR),
-
+    UNAUTHENTICATED(401, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    COOKIES_EMPTY(400, "You don't have refresh_token in cookies", HttpStatus.BAD_REQUEST),
+    INVALID_REFRESH_TOKEN(400, "Invalid refresh_token", HttpStatus.BAD_REQUEST),
+    INVALID_ACCESS_TOKEN(400, "Invalid access token", HttpStatus.BAD_REQUEST),
 
     //CHECK EXISTED
     USER_EXISTED(400, "User existed.", HttpStatus.BAD_REQUEST),
