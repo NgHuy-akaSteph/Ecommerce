@@ -6,24 +6,30 @@ import com.myapp.ecommerce.dto.response.UserResponse;
 import com.myapp.ecommerce.dto.response.ApiPagination;
 import com.myapp.ecommerce.entity.CartDetail;
 import com.myapp.ecommerce.entity.Order;
+import com.myapp.ecommerce.entity.Role;
 import com.myapp.ecommerce.entity.User;
 import com.myapp.ecommerce.exception.AppException;
 import com.myapp.ecommerce.exception.ErrorCode;
 import com.myapp.ecommerce.mapper.UserMapper;
 import com.myapp.ecommerce.repository.*;
+import com.myapp.ecommerce.service.RoleService;
 import com.myapp.ecommerce.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
+import java.util.Optional;
 
 
 @Service
@@ -38,16 +44,37 @@ public class UserServiceImpl implements UserService {
     CartDetailRepository cartDetailRepository;
     OrderRepository orderRepository;
     OrderDetailRepository orderDetailRepository;
+    PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
 
 
     @Override
     public UserResponse createUser(UserCreationRequest request) {
-        return null;
+        log.info("Create a new user");
+
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        Role role;
+        if(request.getRole() == null){
+            role = roleService.findByName("USER");
+        }
+        else {
+            role = roleService.findById(request.getRole());
+        }
+        user.setRole(role);
+
+        try {
+            user = userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+        return userMapper.toUserResponse(user);
     }
+
+
 
     @Override
     public List<UserResponse> getAllUsers() {
-        log.info("Get all users");
 
         List<User> users = userRepository.findAll();
         return users.stream().map(userMapper::toUserResponse).toList();
@@ -82,9 +109,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    public UserResponse getMyInfo() {
+        log.info("Get my info");
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return userMapper.toUserResponse(user);
     }
+
+    @Override
+    @Transactional
+    public User getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Hibernate.initialize(user.getRole());
+        return user;
+    }
+
 
     @Override
     public UserResponse update(String userId, UserUpdateRequest request) {

@@ -5,15 +5,18 @@ import com.myapp.ecommerce.dto.response.ApiResponse;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.Map;
 import java.util.Objects;
 
-@ControllerAdvice
+@RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
@@ -28,11 +31,23 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
-    ResponseEntity<ApiResponse<?>> handlingException(HttpRequestMethodNotSupportedException exception) {
+    ResponseEntity<ApiResponse<?>> handlingUncategorizedException(HttpRequestMethodNotSupportedException exception) {
 
         ApiResponse<?> apiResponse = new ApiResponse<>();
         apiResponse.setStatusCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
         apiResponse.setMessage(exception.getMessage());
+
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
+
+    @ExceptionHandler(value = {
+            UsernameNotFoundException.class,
+            BadCredentialsException.class})
+    ResponseEntity<ApiResponse<?>> handlingBadCredentialsException(BadCredentialsException exception) {
+
+        ApiResponse<?> apiResponse = new ApiResponse<>();
+        apiResponse.setStatusCode(ErrorCode.BAD_CREDENTIALS.getCode());
+        apiResponse.setMessage(ErrorCode.BAD_CREDENTIALS.getMessage());
 
         return ResponseEntity.badRequest().body(apiResponse);
     }

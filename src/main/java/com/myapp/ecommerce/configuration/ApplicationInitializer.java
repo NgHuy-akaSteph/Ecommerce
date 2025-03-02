@@ -77,7 +77,7 @@ public class ApplicationInitializer implements CommandLineRunner {
             arr.add(new Permission("Delete a user", "/api/v1/users/{id}", "DELETE", "USERS", true));
             arr.add(new Permission("Get a user by id", "/api/v1/users/{id}", "GET", "USERS", true));
             arr.add(new Permission("Get users with pagination", "/api/v1/users", "GET", "USERS", true));
-
+            arr.add(new Permission("Get my information", "/api/v1/users/my-info", "GET", "USERS", true));
             arr.add(new Permission("Create a order", "/api/v1/orders", "POST", "ORDERS", true));
             arr.add(new Permission("Export order", "/api/v1/orders/excel/export", "GET", "ORDERS", true));
             arr.add(new Permission("Update a order", "/api/v1/orders/{id}", "PUT", "ORDERS", true));

@@ -1,6 +1,7 @@
 package com.myapp.ecommerce.service;
 
 import com.google.firebase.cloud.StorageClient;
+import com.myapp.ecommerce.dto.response.ApiUpload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +14,14 @@ import java.util.UUID;
 public class FirebaseService {
 
     private final StorageClient storageClient;
+
+
+    public ApiUpload uploadFile(MultipartFile file, String directory){
+        String fileUrl = uploadFileToFireBase(file, directory);
+        return ApiUpload.builder()
+                .fileName(fileUrl)
+                .build();
+    }
 
     public String uploadFileToFireBase(MultipartFile file, String directory) {
         String fileName = "casestudym5/"+ directory + UUID.randomUUID() + "-" + file.getOriginalFilename();

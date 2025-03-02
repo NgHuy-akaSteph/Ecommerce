@@ -15,15 +15,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiResponse<T> {
+public class ApiUpload {
 
-    @Builder.Default
-    int statusCode = 200;
-
-    @Builder.Default
-    Object message = "OK"; // Dung object de co the tra ve ca String va List<String> chua danh sach error
-
-    String error;
-
-    private T data;
+    String fileName;
 }

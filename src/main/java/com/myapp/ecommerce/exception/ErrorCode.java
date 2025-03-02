@@ -9,12 +9,13 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
 
     //AUTHENTICATION
+    UNAUTHORIZED(403, "You do not have permission", HttpStatus.FORBIDDEN),
     UNCATEGORIZED_EXCEPTION(500, "Uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR),
     UNAUTHENTICATED(401, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     COOKIES_EMPTY(400, "You don't have refresh_token in cookies", HttpStatus.BAD_REQUEST),
     INVALID_REFRESH_TOKEN(400, "Invalid refresh_token", HttpStatus.BAD_REQUEST),
     INVALID_ACCESS_TOKEN(400, "Invalid access token", HttpStatus.BAD_REQUEST),
-
+    BAD_CREDENTIALS(400, "Invalid username or password", HttpStatus.BAD_REQUEST),
     //CHECK EXISTED
     USER_EXISTED(400, "User existed.", HttpStatus.BAD_REQUEST),
     USER_NOT_EXISTED(404, "User not existed", HttpStatus.NOT_FOUND),
