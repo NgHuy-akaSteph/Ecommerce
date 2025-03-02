@@ -17,6 +17,10 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -27,6 +31,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,23 +39,17 @@ import java.util.Date;
 @Slf4j
 public class SecurityUtil {
 
-    static MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;
+    public static MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS256;
 
-    @Value("${app.jwt.accessKey}")
+    @Value("${app.jwt.signerKey}")
     @NonFinal
-    String accessKey;
+    String signerKey;
 
-    @Value("${app.jwt.refreshKey}")
-    @NonFinal
-    String refreshKey;
 
-    @Value("${app.jwt.access-token-validity-in-seconds}")
+    @Value("${app.jwt.token-validity-in-seconds}")
     @NonFinal
-    long accessTokenExpiration;
+    long tokenExpiration;
 
-    @Value("${app.jwt.refresh-token-validity-in-seconds}")
-    @NonFinal
-    long refreshTokenExpiration;
 
     public String generateAccessToken(String username, UserResponse userResponse) throws JOSEException {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
@@ -62,7 +61,7 @@ public class SecurityUtil {
                 .build();
         // Time
         Instant now = Instant.now();
-        Instant validity = now.plus(accessTokenExpiration, ChronoUnit.SECONDS);
+        Instant validity = now.plus(tokenExpiration, ChronoUnit.SECONDS);
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
@@ -72,7 +71,7 @@ public class SecurityUtil {
                 .build();
 
         SignedJWT signedJWT = new SignedJWT(header, claimsSet);
-        MACSigner signer = new MACSigner(java.util.Base64.getDecoder().decode(accessKey));
+        MACSigner signer = new MACSigner(java.util.Base64.getDecoder().decode(signerKey));
         signedJWT.sign(signer);
         return signedJWT.serialize();
     }
@@ -87,7 +86,7 @@ public class SecurityUtil {
                 .build();
 
         Instant now = Instant.now();
-        Instant validity = now.plus(refreshTokenExpiration, ChronoUnit.SECONDS);
+        Instant validity = now.plus(tokenExpiration, ChronoUnit.SECONDS);
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
@@ -97,7 +96,7 @@ public class SecurityUtil {
                 .expirationTime(Date.from(validity))
                 .build();
         SignedJWT signedJWT = new SignedJWT(header, claimsSet);
-        MACSigner signer = new MACSigner(java.util.Base64.getDecoder().decode(refreshKey));
+        MACSigner signer = new MACSigner(java.util.Base64.getDecoder().decode(signerKey));
         signedJWT.sign(signer);
         return signedJWT.serialize();
     }
@@ -114,10 +113,28 @@ public class SecurityUtil {
     }
 
     private SecretKey getRefreshSecretKey() {
-        byte[] keyBytes = Base64.from(refreshKey).decode();
+        byte[] keyBytes = Base64.from(signerKey).decode();
         return new SecretKeySpec(keyBytes, 0, keyBytes.length, JWT_ALGORITHM.getName());
     }
 
+
+    public static Optional<String> getCurrentUserLogin() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+    }
+
+    private static String extractPrincipal(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
+            return springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof Jwt jwt) {
+            return jwt.getSubject();
+        } else if (authentication.getPrincipal() instanceof String s) {
+            return s;
+        }
+        return null;
+    }
 
 
 }

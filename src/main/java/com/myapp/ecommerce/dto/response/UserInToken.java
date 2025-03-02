@@ -1,8 +1,7 @@
-package com.myapp.ecommerce.dto.request;
+package com.myapp.ecommerce.dto.response;
 
-
-
-import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +14,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationRequest {
+@JsonPropertyOrder(alphabetic = true)
+public class UserInToken {
+    @JsonProperty("_id")
+    String id;
     String username;
-    String password;
+    String role;
 }

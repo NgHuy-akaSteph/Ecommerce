@@ -2,6 +2,7 @@ package com.myapp.ecommerce.configuration;
 
 import com.myapp.ecommerce.exception.AppException;
 import com.myapp.ecommerce.service.InvalidatedTokenService;
+import com.myapp.ecommerce.util.SecurityUtil;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -10,13 +11,14 @@ import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import com.myapp.ecommerce.exception.ErrorCode;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -29,32 +31,25 @@ public class SecurityJwtConfig {
     InvalidatedTokenService invalidatedTokenService;
 
     @NonFinal
-    @Value("${app.jwt.accessKey}")
-    String accessKey;
-
-    @NonFinal
-    @Value("${app.jwt.refreshKey}")
-    String refreshKey;
+    @Value("${app.jwt.signerKey}")
+    String signerKey;
 
     private SecretKey getSecretKey(String base64Key) {
         byte[] keyBytes = java.util.Base64.getDecoder().decode(base64Key);
-        return new SecretKeySpec(keyBytes, 0, keyBytes.length, "HS256");
+        return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName());
     }
 
     @Bean
     public JwtEncoder jwtEncoder() {
-        return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey(accessKey)));
+        return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey(signerKey)));
     }
 
     @Bean
     public JwtDecoder jwtDecoder() {
 
         //Create decoder for signerKey and refreshKey
-        NimbusJwtDecoder accessDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey(accessKey))
-                .macAlgorithm(MacAlgorithm.HS256).build();
-
-        NimbusJwtDecoder refreshDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey(refreshKey))
-                .macAlgorithm(MacAlgorithm.HS256).build();
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey(signerKey))
+                .macAlgorithm(SecurityUtil.JWT_ALGORITHM).build();
 
         return token -> {
             try {
@@ -62,10 +57,10 @@ public class SecurityJwtConfig {
                     throw new AppException(ErrorCode.UNAUTHENTICATED);
                 }
 
-                Jwt jwt = accessDecoder.decode(token);
+                Jwt jwt = jwtDecoder.decode(token);
                 //Check type token
                 if("refresh".equals(jwt.getClaims().get("token_type"))){
-                    jwt = refreshDecoder.decode(token);
+                    jwt = jwtDecoder.decode(token);
                 }
                 return jwt;
             } catch (Exception e) {
@@ -73,6 +68,17 @@ public class SecurityJwtConfig {
                 throw e;
             }
         };
+    }
+
+    @Bean
+    //Convert JWT to Authentication -> get Authorities from JWT
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("permission");
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
 
 }

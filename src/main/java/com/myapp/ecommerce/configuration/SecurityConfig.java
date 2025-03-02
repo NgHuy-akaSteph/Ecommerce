@@ -18,8 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/", "/auth/login", "/auth/register", "/auth/refresh",
-            "/roles/**"
+            "/", "/auth/login", "/auth/register", "/auth/refresh"
     };
 
     private final String[] PUBLIC_GET_ENDPOINTS = {
@@ -27,33 +26,31 @@ public class SecurityConfig {
     };
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SecurityFilterChain filterChain (HttpSecurity httpSecurity,
-                                            CustomAuthenticationEntryPoint customAuthEntryPoint) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity,
+                                           CustomAuthenticationEntryPoint customAuthEntryPoint) throws Exception {
 
         // Authorization Configuration
-        httpSecurity.authorizeHttpRequests(request ->
-                request
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated()
-        );
-        // JWT Configuration
-        httpSecurity.oauth2ResourceServer(oauth2
-                -> oauth2.jwt(Customizer.withDefaults())
-                .authenticationEntryPoint(customAuthEntryPoint));
-
-        // Disable CSRF and Form Login
-        httpSecurity.csrf(AbstractHttpConfigurer::disable)
-                    .cors(Customizer.withDefaults())
-                    .formLogin(AbstractHttpConfigurer::disable)
-                    .sessionManagement(session
-                            -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        httpSecurity
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF
+                .cors(Customizer.withDefaults()) // Enable CORS
+                .authorizeHttpRequests(request ->
+                        request
+                                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                                .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                                .anyRequest().authenticated())
+                // OAuth2 Resource Server Configuration
+                .oauth2ResourceServer(oauth2
+                        -> oauth2.jwt(Customizer.withDefaults()).authenticationEntryPoint(customAuthEntryPoint))
+                .formLogin(AbstractHttpConfigurer::disable) // Disable Form Login
+                .sessionManagement(session
+                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // Disable Session Management
 
         return httpSecurity.build();
     }
+
 }

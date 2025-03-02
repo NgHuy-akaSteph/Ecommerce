@@ -56,13 +56,13 @@ public class AuthenticationService {
     RoleService roleService;
     SecurityUtil securityUtil;
 
-    @Value("${app.jwt.refreshKey}")
+    @Value("${app.jwt.signerKey}")
     @NonFinal
-    String refreshKey;
+    String signerKey;
 
-    @Value("${app.jwt.refresh-token-validity-in-seconds}")
+    @Value("${app.jwt.token-validity-in-seconds}")
     @NonFinal
-    long refreshTokenExpiration;
+    long tokenExpiration;
 
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
         var token = request.getToken();
@@ -83,7 +83,7 @@ public class AuthenticationService {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 request.getUsername(), request.getPassword()
         );
-        //Xac thuc user bang AuthenticationManagerBuilder -> viet ham loadUserByUsername trong CustomUserDetailsService
+        //Xac thuc user bang AuthenticationManagerBuilder -> viet ham loadUserByUsername trong UserDetailsServiceCustom
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         // Luu thong tin xac thuc vao SecurityContextHolder de su dung sau nay
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -108,7 +108,7 @@ public class AuthenticationService {
         ResponseCookie cookie = ResponseCookie.from("refresh_token", refreshToken)
                 .httpOnly(false) // true: chi co server moi co the doc cookie
                 .secure(true) // true: chi gui cookie qua https
-                .maxAge(refreshTokenExpiration)
+                .maxAge(tokenExpiration)
                 .path("/") // duong dan co the truy cap cookie
                 .build();
 
@@ -204,7 +204,7 @@ public class AuthenticationService {
         ResponseCookie cookie = ResponseCookie.from("refresh_token", newRefreshToken)
                 .httpOnly(true)
                 .secure(true)
-                .maxAge(refreshTokenExpiration)
+                .maxAge(tokenExpiration)
                 .path("/")
                 .build();
 
@@ -214,17 +214,17 @@ public class AuthenticationService {
     }
 
     private SignedJWT vertifyToken(String token, boolean isRefresh) throws ParseException, JOSEException {
-        JWSVerifier verifier = new MACVerifier(refreshKey.getBytes());
+        JWSVerifier verifier = new MACVerifier(signerKey.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);
 
         Date expirationTime = (isRefresh) ?
                 new Date(signedJWT.getJWTClaimsSet().getIssueTime()
-                        .toInstant().plus(refreshTokenExpiration, ChronoUnit.SECONDS)
+                        .toInstant().plus(tokenExpiration, ChronoUnit.SECONDS)
                         .toEpochMilli())
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
 
-        var verified = signedJWT.verify(verifier);
+        boolean verified = signedJWT.verify(verifier);
 
         if(!expirationTime.after(new Date()))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
@@ -238,13 +238,5 @@ public class AuthenticationService {
 
         return signedJWT;
     }
-
-
-
-
-
-
-
-
 
 }
