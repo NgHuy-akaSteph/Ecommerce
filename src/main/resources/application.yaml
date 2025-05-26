@@ -1,0 +1,17 @@
+
+spring:
+  application:
+    name: ecommerce
+  profiles:
+    active: local
+  servlet:
+    # config file upload
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+# Config for local environment
+server:
+    port: 8888
+    servlet:
+      context-path: /api/v1

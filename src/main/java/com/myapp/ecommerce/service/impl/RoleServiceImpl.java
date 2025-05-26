@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class RoleServiceImpl implements RoleService {
     PermissionService permissionService;
 
     @Override
+    @Transactional
     public RoleResponse create(RoleRequest request) {
         log.info("Creating role with name: {}", request.getName());
 
@@ -44,6 +46,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional
     public RoleResponse update(String id, RoleRequest request) {
         log.info("Update role with id: {}", id);
 
@@ -90,6 +93,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional
     public String delete(String id) {
         log.info("Delete role with id: {}", id);
 

@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,7 +33,9 @@ public class CategoryServiceImpl implements CategoryService {
     CategoryMapper categoryMapper;
     ProductService productService;
 
+
     @Override
+    @Transactional
     public CategoryResponse create(CategoryRequest request) {
         log.info("Create a category");
         if(categoryRepository.existsByName(request.getName())) {
@@ -43,6 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryResponse update(String categoryId, CategoryRequest request) {
         log.info("Update a category");
         if(categoryRepository.existsByName(request.getName())) {
@@ -90,6 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public void delete(String categoryId) {
         log.info("Delete a category");
         Category category = categoryRepository.findById(categoryId)

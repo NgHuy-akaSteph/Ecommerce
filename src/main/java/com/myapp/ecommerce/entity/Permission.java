@@ -4,9 +4,6 @@ package com.myapp.ecommerce.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
@@ -24,11 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity(name = "permissions")
-public class Permission {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
+public class Permission extends BaseEntity {
 
     @NotBlank(message = "Name is mandatory")
     String name;

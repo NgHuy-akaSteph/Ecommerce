@@ -33,5 +33,5 @@ build/
 .vscode/
 
 ### local ###
-application-local.properties
+src/main/resources/application-local.md
 google-services.json

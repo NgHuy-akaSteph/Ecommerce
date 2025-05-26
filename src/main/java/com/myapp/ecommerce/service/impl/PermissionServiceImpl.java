@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class PermissionServiceImpl implements PermissionService {
     PermissionMapper permissionMapper;
 
     @Override
+    @Transactional
     public PermissionResponse create(PermissionRequest request) {
         log.info("Create a permission with name: {}", request.getName());
 
@@ -41,6 +43,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    @Transactional
     public PermissionResponse update(String id, PermissionRequest request) {
         log.info("Update a permission with id: {}", id);
 
@@ -55,6 +58,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    @Transactional
     public void delete(String id) {
         log.info("Delete a permission with id: {}", id);
 

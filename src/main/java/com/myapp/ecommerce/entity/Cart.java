@@ -2,9 +2,6 @@ package com.myapp.ecommerce.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -26,13 +23,10 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity(name="carts")
-public class Cart {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
+public class Cart extends BaseEntity {
 
     @Min(value = 0)
-    int total;
+    int sum;
 
     @OneToOne
     @JoinColumn(name = "user_id")

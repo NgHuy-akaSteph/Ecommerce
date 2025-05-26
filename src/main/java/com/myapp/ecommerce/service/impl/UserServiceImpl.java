@@ -18,7 +18,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -49,6 +47,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Transactional
     public UserResponse createUser(UserCreationRequest request) {
         log.info("Create a new user");
 
@@ -104,7 +103,8 @@ public class UserServiceImpl implements UserService {
     public UserResponse getUserById(String userId) {
         log.info("Get details of user");
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         return userMapper.toUserResponse(user);
     }
 
@@ -119,30 +119,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public User getUserByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        Hibernate.initialize(user.getRole());
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+//        Hibernate.initialize(user.getRole());
         return user;
     }
 
 
     @Override
+    @Transactional
     public UserResponse update(String userId, UserUpdateRequest request) {
         log.info("Update a user");
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         userMapper.updateUser(user, request);
         // not done
         return null;
     }
 
     @Override
+    @Transactional
     public void delete(String userId) {
         log.info("Delete a user");
 
         //check if user existed
-        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         // delete cart
         if(user.getCart() != null){
             List<CartDetail> cartDetails = user.getCart().getCartDetails();
@@ -171,6 +175,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateUserToken(String refreshToken, String username) {
         User currentUser = getUserByUsername(username);
         if(currentUser != null){
@@ -180,6 +185,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void handleUserLogout(User user) {
         user.setRefreshToken(null);
         userRepository.save(user);

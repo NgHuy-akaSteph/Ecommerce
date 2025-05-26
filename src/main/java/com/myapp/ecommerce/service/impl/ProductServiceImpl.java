@@ -25,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -42,6 +43,7 @@ public class ProductServiceImpl implements ProductService {
     OrderDetailRepository orderDetailRepository;
 
     @Override
+    @Transactional
     public ProductResponse create(ProductCreationRequest request) {
         log.info("Creating product with name: {}", request.getName());
 
@@ -60,6 +62,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductResponse update(String productId, ProductUpdateRequest request) {
         log.info("Update a product");
         
@@ -90,6 +93,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product getProductById(String productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+    }
+
+    @Override
     public List<ProductResponse> getAll() {
         List<Product> productList = productRepository.findAll();
         return productList.stream().map(productMapper::toProductResponse).toList();
@@ -115,6 +124,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void delete(String productId) {
         log.info("Delete a product");
 
@@ -149,6 +159,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void save(Product product) {
         //Save in Elasticsearch
 
@@ -157,6 +168,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteAll(List<Product> products) {
         products.forEach(product -> {
             List<OrderDetail> orderDetails = product.getOrderDetails();
@@ -166,6 +178,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteAllById(List<String> productIds) {
         List<Product> products = productRepository.findAllById(productIds);
         // Delete in Elasticsearch

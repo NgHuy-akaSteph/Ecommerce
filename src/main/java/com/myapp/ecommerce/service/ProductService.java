@@ -19,6 +19,8 @@ public interface ProductService {
 
     ProductResponse getDetails (String productId);
 
+    Product getProductById(String productId);
+
     List<ProductResponse> getAll();
 
     ApiPagination<ProductResponse> getAll(Specification<Product> spec, Pageable pageable);
