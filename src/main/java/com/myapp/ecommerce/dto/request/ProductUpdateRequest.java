@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
+
 import java.util.List;
 
 @Data
@@ -19,10 +21,10 @@ public class ProductUpdateRequest {
     String name;
     String thumbnail;
     List<String> sliders;
-    double price;
+    BigDecimal price;
     String shortDes;
     String categoryId;
     List<String> tagsId;
     double quantity;
-    long discount;
+    BigDecimal discount;
 }

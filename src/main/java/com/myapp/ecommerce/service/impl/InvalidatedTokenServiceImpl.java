@@ -1,30 +1,27 @@
 package com.myapp.ecommerce.service.impl;
 
-import com.myapp.ecommerce.repository.InvalidatedTokenRepository;
 import com.myapp.ecommerce.service.InvalidatedTokenService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class InvalidatedTokenServiceImpl implements InvalidatedTokenService {
 
-    InvalidatedTokenRepository invalidatedTokenRepository;
+    StringRedisTemplate stringRedisTemplate;
 
     @Override
     public boolean checkToken(String token) {
-        return invalidatedTokenRepository.existsByAccessToken(token);
+        Boolean hasKey = stringRedisTemplate.hasKey("revoked_token:" + token);
+        return hasKey != null && hasKey;
     }
 
-    // Clear all invalidated tokens at midnight every day
     @Override
-    @Scheduled(cron = "0 0 0 * * *")
     public void clearToken(String token) {
-        invalidatedTokenRepository.deleteAll();
+        // Redis manages expiration automatically via TTL, no manual cleanup needed
     }
 }

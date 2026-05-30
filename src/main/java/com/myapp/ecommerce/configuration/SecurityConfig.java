@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import com.myapp.ecommerce.filter.RateLimitingFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -32,7 +33,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity,
-                                           CustomAuthenticationEntryPoint customAuthEntryPoint) throws Exception {
+                                           CustomAuthenticationEntryPoint customAuthEntryPoint,
+                                           RateLimitingFilter rateLimitingFilter) throws Exception {
 
         // Authorization Configuration
         httpSecurity
@@ -48,7 +50,8 @@ public class SecurityConfig {
                         -> oauth2.jwt(Customizer.withDefaults()).authenticationEntryPoint(customAuthEntryPoint))
                 .formLogin(AbstractHttpConfigurer::disable) // Disable Form Login
                 .sessionManagement(session
-                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); // Disable Session Management
+                        -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Disable Session Management
+                .addFilterAfter(rateLimitingFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class);
 
         return httpSecurity.build();
     }

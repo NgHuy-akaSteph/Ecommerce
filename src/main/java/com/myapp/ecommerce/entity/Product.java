@@ -1,13 +1,12 @@
 package com.myapp.ecommerce.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Table;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -20,6 +19,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.math.BigDecimal;
 
 import java.util.List;
 
@@ -29,20 +32,22 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "products")
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @JsonProperty("_id")
-    String id;
+@Entity
+@Table(name="products")
+@SQLDelete(sql = "UPDATE products SET deleted = true WHERE id = ?")
+@SQLRestriction("deleted = false")
+public class Product extends BaseEntity {
+
     String name;
     String shortDescription;
     String thumbnail;
     @ElementCollection
+    @CollectionTable(name = "products_sliders", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "sliders")
     List<String> sliders;
-    double price;
+    BigDecimal price;
     long quantity;
-    double discount;
+    BigDecimal discount;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -62,4 +67,5 @@ public class Product {
     @OneToMany(mappedBy = "product")
     @JsonIgnore
     List<CartDetail> cartDetails;
+
 }

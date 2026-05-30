@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
+
 import java.util.List;
 
 @Data
@@ -23,9 +25,9 @@ public class ProductResponse {
     String name;
     String thumbnail;
     long quantity;
-    double discount;
+    BigDecimal discount;
     List<String> sliders;
-    double price;
+    BigDecimal price;
     String shortDes;
     List<TagResponse> tags;
     CategoryResponse category;

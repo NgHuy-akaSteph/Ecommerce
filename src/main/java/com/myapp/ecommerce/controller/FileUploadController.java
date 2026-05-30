@@ -1,7 +1,7 @@
 package com.myapp.ecommerce.controller;
 
 import com.myapp.ecommerce.dto.response.ApiUpload;
-import com.myapp.ecommerce.service.FirebaseService;
+import com.myapp.ecommerce.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +17,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/file")
 public class FileUploadController {
 
-    FirebaseService firebaseService;
+    FileStorageService fileStorageService;
 
     @PostMapping("/upload")
     public ResponseEntity<ApiUpload> uploadFile(@RequestParam("file") MultipartFile file,
                                                 @RequestParam("folder") String folder)
     {
-        return ResponseEntity.ok().body(firebaseService.uploadFile(file, folder));
+        return ResponseEntity.ok().body(fileStorageService.uploadFile(file, folder));
     }
 }

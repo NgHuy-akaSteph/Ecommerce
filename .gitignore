@@ -31,7 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+*.code-workspace
 
-### local ###
-application-local.properties
-google-services.json
+### Enviroment###
+.env
+
+### Plans ###
+plans
+docs
+
+### Test ###
+src/test/
+
+

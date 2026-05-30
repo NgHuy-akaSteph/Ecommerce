@@ -1,7 +1,6 @@
 package com.myapp.ecommerce.configuration;
 
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -9,18 +8,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class PermissionInterceptorConfig implements WebMvcConfigurer {
 
-    @Bean
-    PermissionInterceptor permissionInterceptor() {
-        return new PermissionInterceptor();
+    private final PermissionInterceptor permissionInterceptor;
+
+    public PermissionInterceptorConfig(PermissionInterceptor permissionInterceptor) {
+        this.permissionInterceptor = permissionInterceptor;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         String[] whitelist = {
-                "/",
-                "/auth/login", "/auth/register", "/auth/refresh"
+                "/", "/auth/**"
         };
-        registry.addInterceptor(permissionInterceptor())
+        registry.addInterceptor(permissionInterceptor)
                 .excludePathPatterns(whitelist);
     }
 

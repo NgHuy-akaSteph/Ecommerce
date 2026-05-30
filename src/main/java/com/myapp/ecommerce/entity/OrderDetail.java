@@ -1,11 +1,8 @@
 package com.myapp.ecommerce.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
@@ -15,6 +12,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -22,17 +23,15 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name="order_details")
-public class OrderDetail {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @JsonProperty("_id")
-    String id;
+@Entity
+@Table(name="order_details")
+@SQLDelete(sql = "UPDATE order_details SET deleted = true WHERE id = ?")
+@SQLRestriction("deleted = false")
+public class OrderDetail extends BaseEntity {
 
     long quantity;
 
-    double price;
+    BigDecimal price;
 
     @ManyToOne
     @JoinColumn(name="order_id")

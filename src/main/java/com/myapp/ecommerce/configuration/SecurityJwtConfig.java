@@ -22,8 +22,12 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 @Configuration
+@EnableMethodSecurity(securedEnabled = true)
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class SecurityJwtConfig {
@@ -64,7 +68,7 @@ public class SecurityJwtConfig {
                 }
                 return jwt;
             } catch (Exception e) {
-                System.out.println("JWT ERROR: " + e.getMessage());
+                log.error("JWT ERROR: {}", e.getMessage());
                 throw e;
             }
         };

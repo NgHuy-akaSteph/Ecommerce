@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class TagServiceImpl implements TagService {
     TagMapper tagMapper;
 
     @Override
+    @Transactional
     public TagResponse create(TagRequest request) {
         log.info("Create a tag");
 
@@ -41,6 +43,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional
     public TagResponse update(String tagId, TagRequest request) {
         log.info("Update a tag");
 

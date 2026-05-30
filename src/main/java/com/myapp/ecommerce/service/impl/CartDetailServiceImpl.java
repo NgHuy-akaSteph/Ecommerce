@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,17 +26,19 @@ public class CartDetailServiceImpl implements CartDetailService {
     }
 
     @Override
-    public CartDetail getCartDetailById(String cartDetailId) {
+    public CartDetail fetchById(String cartDetailId) {
         return cartDetailRepository.findById(cartDetailId).
                 orElseThrow(() -> new AppException(ErrorCode.CART_DETAIL_NOT_EXISTED));
     }
 
     @Override
+    @Transactional
     public CartDetail save(CartDetail cartDetail) {
         return cartDetailRepository.save(cartDetail);
     }
 
     @Override
+    @Transactional
     public void delete(String cartDetailId) {
         cartDetailRepository.deleteById(cartDetailId);
     }

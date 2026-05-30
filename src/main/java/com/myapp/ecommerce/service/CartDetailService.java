@@ -8,7 +8,7 @@ public interface CartDetailService {
 
     CartDetail fetchByCartAndProduct(Cart cart, Product product);
 
-    CartDetail getCartDetailById(String cartDetailId);
+    CartDetail fetchById(String cartDetailId);
 
     CartDetail save(CartDetail cartDetail);
 

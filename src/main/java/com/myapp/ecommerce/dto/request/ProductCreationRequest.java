@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
+
 import java.util.List;
 
 @Data
@@ -27,9 +29,9 @@ public class ProductCreationRequest {
     @Min(value = 0, message = "INVALID_QUANTITY_PRODUCT")
     long quantity;
     @Min(value = 0, message = "INVALID_DISCOUNT_PRODUCT")
-    double discount;
+    BigDecimal discount;
     @Min(value = 0, message = "INVALID_PRICE_PRODUCT")
-    double price;
+    BigDecimal price;
     @NotBlank(message = "INVALID_COLOR_PRODUCT")
     String shortDes;
     String categoryId;
