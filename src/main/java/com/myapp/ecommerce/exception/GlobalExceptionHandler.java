@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.Map;
@@ -63,6 +64,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
+    @ExceptionHandler(value = ObjectOptimisticLockingFailureException.class)
+    ResponseEntity<ApiResponse<?>> handlingOptimisticLocking(ObjectOptimisticLockingFailureException exception){
+        ErrorCode errorCode = ErrorCode.CONCURRENCY_ERROR;
+
+        ApiResponse<?> apiResponse = new ApiResponse<>();
+        apiResponse.setStatusCode(errorCode.getCode());
+        apiResponse.setMessage(errorCode.getMessage());
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+    }
+
     // Replace "min" in message to
     private String mapAttribute(String message, Map<String, Object> attributes) {
         String MIN_ATTRIBUTE = "min";
@@ -79,7 +91,10 @@ public class GlobalExceptionHandler {
 
         ErrorCode errorCode = ErrorCode.INVALID_KEY;
         Map<String, Object> attributes = null;
-        try {
+        boolean isValidKey = java.util.Arrays.stream(ErrorCode.values())
+                .anyMatch(e -> e.name().equals(enumKey));
+
+        if (isValidKey) {
             errorCode = ErrorCode.valueOf(enumKey);
 
             var constraintViolation = exception.getBindingResult().getAllErrors().getFirst()
@@ -88,9 +103,6 @@ public class GlobalExceptionHandler {
             attributes = constraintViolation.getConstraintDescriptor().getAttributes();
 
             log.info(attributes.toString());
-
-        } catch (IllegalArgumentException ignored) {
-
         }
 
         ApiResponse<?> apiResponse = new ApiResponse<>();

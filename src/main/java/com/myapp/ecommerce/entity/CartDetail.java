@@ -3,6 +3,7 @@ package com.myapp.ecommerce.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
@@ -12,6 +13,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -19,12 +24,15 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name="cart_details")
+@Entity
+@Table(name="cart_details")
+@SQLDelete(sql = "UPDATE cart_details SET deleted = true WHERE id = ?")
+@SQLRestriction("deleted = false")
 public class CartDetail extends BaseEntity {
 
     long quantity;
 
-    double price;
+    BigDecimal price;
 
     @ManyToOne
     @JoinColumn(name="cart_id")

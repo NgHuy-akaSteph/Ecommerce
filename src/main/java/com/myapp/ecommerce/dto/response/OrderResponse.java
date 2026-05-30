@@ -6,8 +6,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import com.myapp.ecommerce.entity.enums.OrderStatus;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
+import java.math.BigDecimal;
 
 import java.time.Instant;
 import java.util.List;
@@ -21,11 +24,11 @@ import java.util.List;
 public class OrderResponse {
     @JsonProperty("_id")
     String id;
-    double totalPrice;
+    BigDecimal totalPrice;
     String reciverName;
     String reciverAddress;
     String reciverPhone;
-    String status;
+    OrderStatus status;
     UserResponse user;
     List<OrderDetailResponse> orderDetails;
     Instant createdAt;

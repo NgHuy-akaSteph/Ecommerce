@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
+
 import java.util.List;
 
 @NoArgsConstructor
@@ -22,7 +24,7 @@ public class CartDetailResponse {
 
     String id;
     long quantity;
-    double price;
+    BigDecimal price;
     Product product;
 
     @NoArgsConstructor
@@ -35,7 +37,7 @@ public class CartDetailResponse {
         @JsonProperty("_id")
         String id;
         String name;
-        double price;
+        BigDecimal price;
         String thumbnail;
         List<String> sliders;
     }

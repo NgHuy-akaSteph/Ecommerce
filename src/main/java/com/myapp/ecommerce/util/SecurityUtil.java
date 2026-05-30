@@ -77,44 +77,8 @@ public class SecurityUtil {
     }
 
 
-    public String generateRefreshToken(String username, AuthenticationResponse authResponse) throws JOSEException {
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
-        UserInToken user = UserInToken.builder()
-                .id(authResponse.getUser().getId())
-                .username(username)
-                .role(authResponse.getUser().getRole().getName())
-                .build();
-
-        Instant now = Instant.now();
-        Instant validity = now.plus(tokenExpiration, ChronoUnit.SECONDS);
-
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
-                .claim("user", user)
-                .claim("token_type", "refresh")
-                .issueTime(Date.from(now))
-                .expirationTime(Date.from(validity))
-                .build();
-        SignedJWT signedJWT = new SignedJWT(header, claimsSet);
-        MACSigner signer = new MACSigner(java.util.Base64.getDecoder().decode(signerKey));
-        signedJWT.sign(signer);
-        return signedJWT.serialize();
-    }
-
-    public Jwt decodeToken(String token) {
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getRefreshSecretKey())
-                .macAlgorithm(MacAlgorithm.HS256).build();
-        try {
-            return jwtDecoder.decode(token);
-        } catch (Exception e) {
-            log.warn("Error decoding JWT: {}", e.getMessage());
-            throw e;
-        }
-    }
-
-    private SecretKey getRefreshSecretKey() {
-        byte[] keyBytes = Base64.from(signerKey).decode();
-        return new SecretKeySpec(keyBytes, 0, keyBytes.length, JWT_ALGORITHM.getName());
+    public String generateRefreshToken() {
+        return java.util.UUID.randomUUID().toString();
     }
 
 

@@ -11,6 +11,7 @@ import com.myapp.ecommerce.entity.Order;
 import com.myapp.ecommerce.entity.OrderDetail;
 import com.myapp.ecommerce.entity.Product;
 import com.myapp.ecommerce.entity.User;
+import com.myapp.ecommerce.entity.enums.OrderStatus;
 import com.myapp.ecommerce.exception.AppException;
 import com.myapp.ecommerce.exception.ErrorCode;
 import com.myapp.ecommerce.mapper.OrderDetailMapper;
@@ -34,7 +35,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.math.RoundingMode;
 
 @Service
 @RequiredArgsConstructor
@@ -84,12 +87,21 @@ public class OrderServiceImpl implements OrderService {
                     Product product = cartDetail.getProduct();
                     // Update quantity of product
                     long newQuantity = product.getQuantity() - cartDetail.getQuantity();
+                    if (newQuantity < 0) {
+                        throw new AppException(ErrorCode.OUT_OF_STOCK);
+                    }
                     product.setQuantity(newQuantity);
                     productRepository.save(product);
+
+                    // Calculate price with percentage discount
+                    BigDecimal discountPct = product.getDiscount() != null ? product.getDiscount() : BigDecimal.ZERO;
+                    BigDecimal discountAmount = product.getPrice().multiply(discountPct).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+                    BigDecimal effectivePrice = product.getPrice().subtract(discountAmount);
+
                     // Create order detail
                     OrderDetail orderDetail = OrderDetail.builder()
                             .quantity(cartDetail.getQuantity())
-                            .price(product.getPrice())
+                            .price(effectivePrice)
                             .order(entityDB)
                             .product(product)
                             .build();
@@ -146,10 +158,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ApiPagination<OrderResponse> getHistory(Pageable pageable) {
         log.info("Get order history");
-        if (SecurityUtil.getCurrentUserLogin().isPresent()) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
-        String username = SecurityUtil.getCurrentUserLogin().get();
+        String username = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
         User user = this.userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         Page<Order> pageOrder = this.orderRepository.findByUser(user, pageable);
@@ -188,19 +198,36 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void delete(String id) {
-        log.info("Delete a order by id");
+        log.info("Cancel a order by id");
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-        orderDetailRepository.deleteAll(order.getOrderDetails());
-        orderRepository.delete(order);
+        
+        if (order.getStatus() != OrderStatus.CANCELLED) {
+            order.setStatus(OrderStatus.CANCELLED);
+            order.getOrderDetails().forEach(detail -> {
+                Product product = detail.getProduct();
+                product.setQuantity(product.getQuantity() + detail.getQuantity());
+                productRepository.save(product);
+            });
+            orderRepository.save(order);
+        }
     }
 
     @Override
     @Transactional
     public void deleteAll(List<String> ids) {
-        log.info("Delete all orders by ids");
+        log.info("Cancel all orders by ids");
         List<Order> orders = orderRepository.findByIdIn(ids);
-        orders.forEach(order -> orderDetailRepository.deleteAll(order.getOrderDetails()));
-        orderRepository.deleteAll(orders);
+        orders.forEach(order -> {
+            if (order.getStatus() != OrderStatus.CANCELLED) {
+                order.setStatus(OrderStatus.CANCELLED);
+                order.getOrderDetails().forEach(detail -> {
+                    Product product = detail.getProduct();
+                    product.setQuantity(product.getQuantity() + detail.getQuantity());
+                    productRepository.save(product);
+                });
+                orderRepository.save(order);
+            }
+        });
     }
 }

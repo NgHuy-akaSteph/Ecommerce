@@ -161,8 +161,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public void save(Product product) {
-        //Save in Elasticsearch
-
         //Save in database
         productRepository.save(product);
     }
@@ -181,7 +179,6 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void deleteAllById(List<String> productIds) {
         List<Product> products = productRepository.findAllById(productIds);
-        // Delete in Elasticsearch
 
         // Delete in database
         products.forEach(product -> {

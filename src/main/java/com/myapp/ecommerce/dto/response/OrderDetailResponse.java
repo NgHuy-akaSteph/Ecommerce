@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
+
 import java.time.Instant;
 
 @Data
@@ -22,7 +24,7 @@ public class OrderDetailResponse {
     @JsonProperty("_id")
     String id;
     long quantity;
-    double price;
+    BigDecimal price;
     ProductResponse product;
     Instant createdAt;
     Instant updatedAt;

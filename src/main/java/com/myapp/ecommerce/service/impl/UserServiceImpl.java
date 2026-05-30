@@ -62,11 +62,10 @@ public class UserServiceImpl implements UserService {
         }
         user.setRole(role);
 
-        try {
-            user = userRepository.save(user);
-        } catch (DataIntegrityViolationException e) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
+        user = userRepository.save(user);
         return userMapper.toUserResponse(user);
     }
 

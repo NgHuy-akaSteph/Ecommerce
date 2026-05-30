@@ -1,6 +1,7 @@
 package com.myapp.ecommerce.mapper;
 
 import com.myapp.ecommerce.dto.request.UserCreationRequest;
+import com.myapp.ecommerce.dto.request.UserRegisterRequest;
 import com.myapp.ecommerce.dto.request.UserUpdateRequest;
 import com.myapp.ecommerce.dto.response.UserResponse;
 import com.myapp.ecommerce.entity.User;
@@ -11,6 +12,9 @@ public interface UserMapper {
 
     @Mapping(target = "role", ignore = true)
     User toUser(UserCreationRequest request);
+
+    @Mapping(target = "role", ignore = true)
+    User toUser(UserRegisterRequest request);
 
     UserResponse toUserResponse(User user);
 

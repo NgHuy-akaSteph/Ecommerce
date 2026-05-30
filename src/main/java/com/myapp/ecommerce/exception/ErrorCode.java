@@ -27,6 +27,8 @@ public enum ErrorCode {
     ROLE_NOT_EXISTED(400, "Role not existed", HttpStatus.BAD_REQUEST),
     PERMISSION_NOT_EXISTED(400, "Permission not existed", HttpStatus.BAD_REQUEST),
     CART_DETAIL_NOT_EXISTED(400, "Cart detail not existed", HttpStatus.BAD_REQUEST),
+    OUT_OF_STOCK(400, "Not enough stock available", HttpStatus.BAD_REQUEST),
+    CONCURRENCY_ERROR(409, "Data was modified by another transaction. Please try again.", HttpStatus.CONFLICT),
 
     //VALIDATE
     INVALID_KEY(400, "Uncategorized error", HttpStatus.BAD_REQUEST),
@@ -37,6 +39,8 @@ public enum ErrorCode {
     INVALID_PHONE_NUMBER(400, "Phone number is invalid", HttpStatus.BAD_REQUEST),
     INVALID_CATEGORY_NAME(400, "Category name is invalid", HttpStatus.BAD_REQUEST),
     INVALID_TAG_NAME(400, "Tag name is invalid", HttpStatus.BAD_REQUEST),
+    TOO_MANY_REQUESTS(429, "Too many requests. Please try again later.", HttpStatus.TOO_MANY_REQUESTS),
+    INVALID_FILE_TYPE(400, "Only image files are allowed. Supported formats: JPEG, PNG, WEBP, GIF.", HttpStatus.BAD_REQUEST),
     ;
 
 

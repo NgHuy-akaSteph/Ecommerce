@@ -3,6 +3,7 @@ package com.myapp.ecommerce.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.NotBlank;
@@ -12,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.List;
 
@@ -20,7 +23,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "permissions")
+@Entity
+@Table(name="permissions")
+@SQLDelete(sql = "UPDATE permissions SET deleted = true WHERE id = ?")
+@SQLRestriction("deleted = false")
 public class Permission extends BaseEntity {
 
     @NotBlank(message = "Name is mandatory")

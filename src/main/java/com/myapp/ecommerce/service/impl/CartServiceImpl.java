@@ -38,10 +38,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse getCartByUser() {
-        if(SecurityUtil.getCurrentUserLogin().isPresent()){
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
-        String username = SecurityUtil.getCurrentUserLogin().get();
+        String username = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
         User user = userService.getUserByUsername(username);
         Cart cart = cartRepository.findByUser(user);
         return cartMapper.toCartResponse(cart);
@@ -50,10 +48,8 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartResponse handleAddProductToCart(CartRequest request) {
-        if(SecurityUtil.getCurrentUserLogin().isPresent()){
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
-        String username = SecurityUtil.getCurrentUserLogin().get();
+        String username = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
         User user = userService.getUserByUsername(username);
         Cart cart = cartRepository.findByUser(user);
         if(cart == null){
@@ -64,6 +60,9 @@ public class CartServiceImpl implements CartService {
         List<CartDetail> old = cart.getCartDetails();
         // if product not exist in cart, create new cart detail and add to cart
         if(cartDetail == null){
+            if (request.getQuantity() > product.getQuantity()) {
+                throw new AppException(ErrorCode.OUT_OF_STOCK);
+            }
             cartDetail = CartDetail.builder()
                     .cart(cart)
                     .price(product.getPrice())
@@ -83,6 +82,9 @@ public class CartServiceImpl implements CartService {
             cart.setSum(total);
         } else { // if product exist in cart, increase quantity
             long quantity = cartDetail.getQuantity() + request.getQuantity();
+            if (quantity > product.getQuantity()) {
+                throw new AppException(ErrorCode.OUT_OF_STOCK);
+            }
             cartDetail.setQuantity(quantity);
         }
         cartDetailService.save(cartDetail);
@@ -94,10 +96,8 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     public CartResponse handleChangeQuantityInCart(CartRequest request) {
-        if(SecurityUtil.getCurrentUserLogin().isPresent()){
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
-        String username = SecurityUtil.getCurrentUserLogin().get();
+        String username = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
         User user = userService.getUserByUsername(username);
         Cart cart = cartRepository.findByUser(user);
         if(cart == null){
@@ -107,6 +107,9 @@ public class CartServiceImpl implements CartService {
         CartDetail cartDetail = cartDetailService.fetchByCartAndProduct(cart, product);
 
         long quantity = request.getQuantity();
+        if (quantity > product.getQuantity()) {
+            throw new AppException(ErrorCode.OUT_OF_STOCK);
+        }
         cartDetail.setQuantity(quantity);
         cartDetailService.save(cartDetail);
         cartRepository.save(cart);

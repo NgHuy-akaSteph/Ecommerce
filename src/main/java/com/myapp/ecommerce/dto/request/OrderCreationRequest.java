@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
+
 import java.util.List;
 
 @Data
@@ -19,7 +21,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderCreationRequest {
     @Min(value = 1, message = "INVALID_PRICE_ORDER")
-    double totalPrice;
+    @Min(value = 1, message = "INVALID_PRICE_ORDER")
+    BigDecimal totalPrice;
     String reciverName;
     String reciverAddress;
     @Pattern(regexp = "(^$|[0-9]{10})")

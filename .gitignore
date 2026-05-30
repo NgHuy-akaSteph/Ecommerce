@@ -31,7 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+*.code-workspace
 
-### local ###
-src/main/resources/application-local.md
-google-services.json
+### Enviroment###
+.env
+
+### Plans ###
+plans
+docs
+
+### Test ###
+src/test/
+
+
