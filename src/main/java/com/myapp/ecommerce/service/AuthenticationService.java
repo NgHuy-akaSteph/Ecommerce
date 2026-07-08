@@ -16,7 +16,7 @@ import com.myapp.ecommerce.repository.UserRepository;
 import com.myapp.ecommerce.util.SecurityUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -55,10 +55,6 @@ public class AuthenticationService {
     StringRedisTemplate stringRedisTemplate;
     EmailService emailService;
     EmailVerificationService emailVerificationService;
-
-    @Value("${app.jwt.signerKey}")
-    @NonFinal
-    String signerKey;
 
     @Value("${app.jwt.token-validity-in-seconds}")
     @NonFinal
@@ -268,7 +264,7 @@ public class AuthenticationService {
 
 
     private SignedJWT verifyToken(String token, boolean isRefresh) throws ParseException, JOSEException {
-        JWSVerifier verifier = new MACVerifier(signerKey.getBytes());
+        JWSVerifier verifier = securityUtil.buildVerifier();
         SignedJWT signedJWT = SignedJWT.parse(token);
 
         Date expirationTime = (isRefresh)

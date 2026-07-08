@@ -36,6 +36,11 @@ build/
 ### Enviroment###
 .env
 
+### JWT signing keys (RS256) ###
+# Never commit private/public PEM keys; only the .example placeholders.
+src/main/resources/keys/*.pem
+!src/main/resources/keys/*.pem.example
+
 ### Plans ###
 plans
 docs

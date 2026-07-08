@@ -2,28 +2,33 @@ package com.myapp.ecommerce.configuration;
 
 import com.myapp.ecommerce.exception.AppException;
 import com.myapp.ecommerce.service.InvalidatedTokenService;
-import com.myapp.ecommerce.util.SecurityUtil;
-import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import com.myapp.ecommerce.exception.ErrorCode;
+import com.nimbusds.jose.JWSAlgorithm;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import com.myapp.ecommerce.exception.ErrorCode;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -35,35 +40,38 @@ public class SecurityJwtConfig {
     InvalidatedTokenService invalidatedTokenService;
 
     @NonFinal
-    @Value("${app.jwt.signerKey}")
-    String signerKey;
+    @Value("${app.jwt.public-key-path}")
+    Resource publicKeyResource;
 
-    private SecretKey getSecretKey(String base64Key) {
-        byte[] keyBytes = java.util.Base64.getDecoder().decode(base64Key);
-        return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName());
-    }
-
-    @Bean
-    public JwtEncoder jwtEncoder() {
-        return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey(signerKey)));
+    private RSAPublicKey loadPublicKey() {
+        try {
+            String pem = new String(publicKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8)
+                    .replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replace("-----END PUBLIC KEY-----", "")
+                    .replaceAll("\\s+", "");
+            byte[] der = Base64.getDecoder().decode(pem);
+            KeyFactory factory = KeyFactory.getInstance("RSA");
+            return (RSAPublicKey) factory.generatePublic(new X509EncodedKeySpec(der));
+        } catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new IllegalStateException("Cannot load JWT public key from " + publicKeyResource, e);
+        }
     }
 
     @Bean
     public JwtDecoder jwtDecoder() {
-
-        //Create decoder for signerKey and refreshKey
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey(signerKey))
-                .macAlgorithm(SecurityUtil.JWT_ALGORITHM).build();
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder
+                .withPublicKey(loadPublicKey())
+                .signatureAlgorithm(SignatureAlgorithm.RS256)
+                .build();
 
         return token -> {
             try {
-                if(invalidatedTokenService.checkToken(token)){
+                if (invalidatedTokenService.checkToken(token)) {
                     throw new AppException(ErrorCode.UNAUTHENTICATED);
                 }
 
                 Jwt jwt = jwtDecoder.decode(token);
-                //Check type token
-                if("refresh".equals(jwt.getClaims().get("token_type"))){
+                if ("refresh".equals(jwt.getClaims().get("token_type"))) {
                     jwt = jwtDecoder.decode(token);
                 }
                 return jwt;
@@ -75,7 +83,6 @@ public class SecurityJwtConfig {
     }
 
     @Bean
-    //Convert JWT to Authentication -> get Authorities from JWT
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthorityPrefix("");
