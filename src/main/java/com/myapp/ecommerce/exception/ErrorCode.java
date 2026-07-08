@@ -16,6 +16,7 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN(400, "Invalid refresh_token", HttpStatus.BAD_REQUEST),
     INVALID_ACCESS_TOKEN(400, "Invalid access token", HttpStatus.BAD_REQUEST),
     BAD_CREDENTIALS(400, "Invalid username or password", HttpStatus.BAD_REQUEST),
+    ACCOUNT_LOCKED(403, "Account is temporarily locked due to too many failed attempts", HttpStatus.FORBIDDEN),
 
     //CHECK EXISTED
     USER_EXISTED(400, "User existed.", HttpStatus.BAD_REQUEST),

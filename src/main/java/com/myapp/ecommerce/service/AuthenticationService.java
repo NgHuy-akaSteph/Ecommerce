@@ -24,6 +24,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -82,11 +83,33 @@ public class AuthenticationService {
     }
 
     public LoginResult login(AuthenticationRequest request) throws JOSEException {
+        User existingUser = userService.getUserByUsernameOrEmail(request.getUsername());
+
+        if (existingUser.getLockedUntil() != null && existingUser.getLockedUntil().isAfter(Instant.now())) {
+            throw new AppException(ErrorCode.ACCOUNT_LOCKED);
+        }
+
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 request.getUsername(), request.getPassword()
         );
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        try {
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            existingUser.setFailedLoginAttempts(0);
+            existingUser.setLockedUntil(null);
+            userRepository.save(existingUser);
+        } catch (BadCredentialsException e) {
+            int attempts = (existingUser.getFailedLoginAttempts() == null ? 0 : existingUser.getFailedLoginAttempts()) + 1;
+            existingUser.setFailedLoginAttempts(attempts);
+            if (attempts >= 5) {
+                existingUser.setLockedUntil(Instant.now().plus(15, ChronoUnit.MINUTES));
+                existingUser.setFailedLoginAttempts(0);
+            }
+            userRepository.save(existingUser);
+            throw new AppException(ErrorCode.BAD_CREDENTIALS);
+        }
 
         User currentUser = userService.getUserByUsernameOrEmail(request.getUsername());
         AuthenticationResponse authResponse = new AuthenticationResponse();
