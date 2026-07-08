@@ -71,6 +71,12 @@ public class SecurityJwtConfig {
                 }
 
                 Jwt jwt = jwtDecoder.decode(token);
+
+                String subject = jwt.getSubject();
+                if (subject != null && invalidatedTokenService.isUserRevoked(subject)) {
+                    throw new AppException(ErrorCode.UNAUTHENTICATED);
+                }
+
                 if ("refresh".equals(jwt.getClaims().get("token_type"))) {
                     jwt = jwtDecoder.decode(token);
                 }
@@ -86,7 +92,7 @@ public class SecurityJwtConfig {
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthorityPrefix("");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("permission");
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return jwtAuthenticationConverter;

@@ -38,6 +38,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -56,7 +57,7 @@ public class SecurityUtil {
     @NonFinal
     Resource publicKeyResource;
 
-    @Value("${app.jwt.token-validity-in-seconds}")
+    @Value("${app.jwt.access-token-validity-seconds}")
     @NonFinal
     long tokenExpiration;
 
@@ -107,6 +108,7 @@ public class SecurityUtil {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
                 .claim("user", user)
+                .claim("roles", List.of("ROLE_" + userResponse.getRoleName()))
                 .issueTime(Date.from(now))
                 .expirationTime(Date.from(validity))
                 .build();

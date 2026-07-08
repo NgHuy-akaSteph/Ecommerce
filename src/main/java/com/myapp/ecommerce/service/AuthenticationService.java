@@ -56,7 +56,7 @@ public class AuthenticationService {
     EmailService emailService;
     EmailVerificationService emailVerificationService;
 
-    @Value("${app.jwt.token-validity-in-seconds}")
+    @Value("${app.jwt.refresh-token-validity-seconds}")
     @NonFinal
     long tokenExpiration;
 

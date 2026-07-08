@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
-@Component("userDetailsService") // Ghi de len UserDetailsService mac dinh cua Spring
+@Component("userDetailsService")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserDetailsServiceCustom implements UserDetailsService {
@@ -27,10 +27,11 @@ public class UserDetailsServiceCustom implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Invalid username or password.");
         }
+        String roleName = user.getRole() != null ? user.getRole().getName() : "USER";
         return new User(
                 user.getUsername(),
                 user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleName))
         );
     }
 }
