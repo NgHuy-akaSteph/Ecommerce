@@ -54,6 +54,11 @@ public class User extends BaseEntity {
     @JoinColumn(name = "role_id")
     Role role;
 
+    @Builder.Default
+    Integer failedLoginAttempts = 0;
+
+    Instant lockedUntil;
+
     @OneToOne(mappedBy = "user")
     Cart cart;
 
