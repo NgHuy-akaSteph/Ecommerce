@@ -46,6 +46,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
                     throw e;
                 }
                 log.warn("Error during permission check for user '{}': {}", username, e.getMessage());
+                throw new AppException(ErrorCode.UNAUTHORIZED);
             }
         }
         return true;

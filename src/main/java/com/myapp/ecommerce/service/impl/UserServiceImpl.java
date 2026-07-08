@@ -213,7 +213,7 @@ public class UserServiceImpl implements UserService {
     public boolean hasPermission(String username, String path, String httpMethod) {
         User user = userRepository.findByUsername(username).orElse(null);
         if (user == null || user.getRole() == null) {
-            return true;
+            return false;
         }
         Role role = user.getRole();
         List<Permission> permissions = role.getPermissions();
