@@ -55,6 +55,7 @@ public class AuthenticationService {
     StringRedisTemplate stringRedisTemplate;
     EmailService emailService;
     EmailVerificationService emailVerificationService;
+    InvalidatedTokenService invalidatedTokenService;
 
     @Value("${app.jwt.refresh-token-validity-seconds}")
     @NonFinal
@@ -222,12 +223,23 @@ public class AuthenticationService {
 
     @Transactional
     public LoginResult refreshToken(String refreshToken) throws JOSEException, ParseException {
-        if (refreshToken.equals("default")) {
+        if (refreshToken == null || refreshToken.equals("default") || refreshToken.isBlank()) {
             throw new AppException(ErrorCode.COOKIES_EMPTY);
         }
 
-        String username = stringRedisTemplate.opsForValue().get("refresh_token:" + refreshToken);
+        String username = invalidatedTokenService.getUsernameByRefreshToken(refreshToken);
+
+        // Reuse detection: token not in active set but in used set -> attacker reused
         if (username == null) {
+            if (invalidatedTokenService.isRefreshTokenUsed(refreshToken)) {
+                String reuseUsername = invalidatedTokenService.getUsernameByUsedRefreshToken(refreshToken);
+                if (reuseUsername != null) {
+                    invalidatedTokenService.invalidateAllTokensForUser(
+                            reuseUsername, java.time.Duration.ofSeconds(tokenExpiration));
+                    log.warn("Refresh token reuse detected, revoked all tokens for user '{}'", reuseUsername);
+                }
+                throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
+            }
             throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
@@ -236,6 +248,11 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
+        // Mark old refresh token as used to prevent reuse
+        invalidatedTokenService.markRefreshTokenAsUsed(
+                refreshToken, username, java.time.Duration.ofSeconds(tokenExpiration));
+
+        // Remove the old active refresh token entry
         stringRedisTemplate.delete("refresh_token:" + refreshToken);
 
         AuthenticationResponse authResponse = new AuthenticationResponse();
@@ -251,11 +268,9 @@ public class AuthenticationService {
         String newRefreshToken = securityUtil.generateRefreshToken();
         authResponse.setRefreshToken(newRefreshToken);
 
-        stringRedisTemplate.opsForValue().set(
-                "refresh_token:" + newRefreshToken,
-                username,
-                java.time.Duration.ofSeconds(tokenExpiration)
-        );
+        // Save the new active refresh token
+        invalidatedTokenService.saveRefreshToken(
+                username, newRefreshToken, java.time.Duration.ofSeconds(tokenExpiration));
 
         userService.updateUserToken(newRefreshToken, username);
 
