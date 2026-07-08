@@ -84,6 +84,7 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public ProductResponse getDetails(String productId) {
         log.info("Get product details");
 
@@ -93,18 +94,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Product getProductById(String productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductResponse> getAll() {
         List<Product> productList = productRepository.findAll();
         return productList.stream().map(productMapper::toProductResponse).toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiPagination<ProductResponse> getAll(Specification<Product> spec, Pageable pageable) {
         log.info("Get all products");
         Page<Product> productPage = productRepository.findAll(spec, pageable);
@@ -136,6 +140,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiPagination<ProductResponse> fetchProductsByCategory(String categoryId, Pageable pageable) {
         log.info("Fetch products by category");
 

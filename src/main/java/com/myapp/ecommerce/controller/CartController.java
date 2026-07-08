@@ -1,9 +1,10 @@
 package com.myapp.ecommerce.controller;
 
 import com.myapp.ecommerce.dto.request.CartRequest;
+import com.myapp.ecommerce.dto.response.ApiResponse;
 import com.myapp.ecommerce.dto.response.CartResponse;
 import com.myapp.ecommerce.service.CartService;
-import com.myapp.ecommerce.util.annotation.ApiMessage;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,31 +24,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
+@Tag(name = "Cart", description = "Shopping cart operations")
 public class CartController {
 
     CartService cartService;
 
     @GetMapping
-    @ApiMessage("Get cart by user successfully")
-    ResponseEntity<CartResponse> getCartByUser(){
-        return ResponseEntity.ok().body(cartService.getCartByUser());
+    ResponseEntity<ApiResponse<CartResponse>> getCartByUser() {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Get cart by user successfully", cartService.getCartByUser()));
     }
 
     @PostMapping("/add")
-    @ApiMessage("Add product to cart successfully")
-    ResponseEntity<CartResponse> addProductToCart(@RequestBody @Valid CartRequest request){
-        return ResponseEntity.ok().body(cartService.handleAddProductToCart(request));
+    ResponseEntity<ApiResponse<CartResponse>> addProductToCart(@RequestBody @Valid CartRequest request) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Add product to cart successfully", cartService.handleAddProductToCart(request)));
     }
 
     @PostMapping("/change")
-    @ApiMessage("Change product quantity in cart successfully")
-    ResponseEntity<CartResponse> changeProductQuantityInCart(@RequestBody @Valid CartRequest request){
-        return ResponseEntity.ok().body(cartService.handleChangeQuantityInCart(request));
+    ResponseEntity<ApiResponse<CartResponse>> changeProductQuantityInCart(@RequestBody @Valid CartRequest request) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Change product quantity in cart successfully", cartService.handleChangeQuantityInCart(request)));
     }
 
     @DeleteMapping("/delete/{id}")
-    @ApiMessage("Delete cart detail from cart successfully")
-    ResponseEntity<CartResponse> deleteProductFromCart(@PathVariable("id") String id){
-        return ResponseEntity.ok().body(cartService.handleRemoveCartDetail(id));
+    ResponseEntity<ApiResponse<CartResponse>> deleteProductFromCart(@PathVariable("id") String id) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Delete cart detail from cart successfully", cartService.handleRemoveCartDetail(id)));
     }
 }

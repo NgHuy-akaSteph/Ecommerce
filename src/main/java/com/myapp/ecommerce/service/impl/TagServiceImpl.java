@@ -54,6 +54,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TagResponse getDetails(String tagId) {
         log.info("Get details of a tag");
         Tag tagDB = tagRepository.findById(tagId).
@@ -62,6 +63,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiPagination<TagResponse> getAll(Specification<Tag> spec, Pageable pageable) {
         log.info("Get all tags");
         Page<Tag> tagPage = tagRepository.findAll(spec, pageable);
@@ -81,6 +83,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional
     public void delete(String tagId) {
         log.info("Delete a tag");
         Tag tag = tagRepository.findById(tagId).
@@ -94,6 +97,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Tag findByName(String tagName) {
         return tagRepository.findByName(tagName);
     }

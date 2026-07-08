@@ -36,4 +36,8 @@ public interface UserService {
     void handleUserLogout(User user);
 
     User getUserByUsernameAndRefreshToken(String username, String refreshToken);
+
+    User getUserByUsernameOrEmail(String identifier);
+
+    boolean hasPermission(String username, String path, String httpMethod);
 }

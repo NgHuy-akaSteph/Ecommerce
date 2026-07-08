@@ -1,6 +1,7 @@
 package com.myapp.ecommerce.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +10,18 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiString {
-    String message;
+@JsonPropertyOrder(alphabetic = true)
+public class VariantValueResponse {
+
+    @JsonProperty("_id")
+    String id;
+
+    String value;
+    String code;
+
+    VariantOptionResponse option;
 }

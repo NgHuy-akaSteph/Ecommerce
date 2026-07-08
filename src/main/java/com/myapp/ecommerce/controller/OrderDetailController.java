@@ -3,13 +3,13 @@ package com.myapp.ecommerce.controller;
 
 import com.myapp.ecommerce.dto.request.OrderDetailRequest;
 import com.myapp.ecommerce.dto.response.ApiPagination;
-import com.myapp.ecommerce.dto.response.ApiString;
+import com.myapp.ecommerce.dto.response.ApiResponse;
 import com.myapp.ecommerce.dto.response.OrderDetailResponse;
 import com.myapp.ecommerce.entity.OrderDetail;
 import com.myapp.ecommerce.service.OrderDetailService;
-import com.myapp.ecommerce.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Orders", description = "Order placement and management")
 @RequestMapping("/orderdetails")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -37,35 +38,34 @@ public class OrderDetailController {
     OrderDetailService orderDetailService;
 
     @PostMapping
-    @ApiMessage("Create order detail successfully")
-    ResponseEntity<OrderDetailResponse> create(@RequestBody @Valid OrderDetailRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderDetailService.create(request));
+    ResponseEntity<ApiResponse<OrderDetailResponse>> create(@RequestBody @Valid OrderDetailRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("Create order detail successfully", orderDetailService.create(request)));
     }
 
     @GetMapping
-    @ApiMessage("Get all order details successfully")
-    ResponseEntity<ApiPagination<OrderDetailResponse>> getAll(@Filter Specification<OrderDetail> spec,
-                                                              Pageable pageable){
-        return ResponseEntity.ok().body(orderDetailService.getAll(spec, pageable));
+    ResponseEntity<ApiResponse<ApiPagination<OrderDetailResponse>>> getAll(@Filter Specification<OrderDetail> spec,
+                                                                          Pageable pageable) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Get all order details successfully", orderDetailService.getAll(spec, pageable)));
     }
 
     @GetMapping("/{id}")
-    @ApiMessage("Get a order detail successfully")
-    ResponseEntity<OrderDetailResponse> getOrderDetail(@PathVariable("id") String id){
-        return ResponseEntity.ok().body(orderDetailService.getById(id));
+    ResponseEntity<ApiResponse<OrderDetailResponse>> getOrderDetail(@PathVariable("id") String id) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Get a order detail successfully", orderDetailService.getById(id)));
     }
 
     @PutMapping("/{id}")
-    @ApiMessage("Update a order detail successfully")
-    ResponseEntity<OrderDetailResponse> update(@PathVariable("id") String id,
-                                               @RequestBody @Valid OrderDetailRequest request){
-        return ResponseEntity.ok().body(orderDetailService.update(id, request));
+    ResponseEntity<ApiResponse<OrderDetailResponse>> update(@PathVariable("id") String id,
+                                                           @RequestBody @Valid OrderDetailRequest request) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Update a order detail successfully", orderDetailService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    @ApiMessage("Delete a order detail successfully")
-    ResponseEntity<ApiString> delete(@PathVariable("id") String id){
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") String id) {
         orderDetailService.delete(id);
-        return ResponseEntity.ok().body(new ApiString("success"));
+        return ResponseEntity.ok().body(ApiResponse.ok("Delete a order detail successfully", "success"));
     }
 }

@@ -65,6 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CategoryResponse getDetails(String categoryId) {
         log.info("Get details of a category");
 
@@ -74,6 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiPagination<CategoryResponse> getAll(Specification<Category> spec, Pageable pageable) {
         log.info("Get all categories");
 

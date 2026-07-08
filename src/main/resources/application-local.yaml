@@ -8,27 +8,48 @@ spring:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      auto-commit: false
   # Hibernate — Flyway manages schema, Hibernate only validates
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+      show-sql: true
     properties:
       hibernate:
         jdbc:
           time_zone: Asia/Ho_Chi_Minh
-
+        default_batch_fetch_size: 30
+        hikari:
+          maximum-size: 20
+          minimum-idle: 5
+          idle-timeout: 300000
+          max-lifetime: 1200000
+          connection-timeout: 30000
+          connection:
+            provider_disables_autocommit: true
   # Redis Configuration
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      url: ${REDIS_URL:localhost}
 
 # JWT
 app:
   jwt:
     signerKey: ${JWT_SIGNER_KEY}
     token-validity-in-seconds: ${JWT_TOKEN_VALIDITY_SECONDS:86400}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4000,http://localhost:4173,http://localhost:5173}
+  base-url: ${APP_BASE_URL:http://localhost:5173}
+  email:
+    verify-token-expiry-minutes: 15
+    password-reset-token-expiry-minutes: 15
+  seed:
+    default-admin-username: ${DEFAULT_ADMIN_USERNAME:admin}
+    default-admin-password: ${DEFAULT_ADMIN_PASSWORD:12345678}
+    default-user-username: ${DEFAULT_USER_USERNAME:user01}
+    default-user-password: ${DEFAULT_USER_PASSWORD:12345678}
+    default-user-email: ${DEFAULT_USER_EMAIL:user01@example.com}
 
 # Cloudflare R2 (S3-compatible storage)
 cloudflare:
@@ -39,3 +60,16 @@ cloudflare:
     bucket-public: ${R2_BUCKET_NAME_PUBLIC:ecommerce-public}
     bucket-private: ${R2_BUCKET_NAME_PRIVATE:ecommerce-private}
     public-url: ${R2_PUBLIC_URL:https://pub-xxx.r2.dev}
+
+# Resend Email API
+resend:
+  api-key: ${RESEND_API_KEY}
+  from-email: ${RESEND_FROM_EMAIL:myshop@resend.dev}
+  from-name: ${RESEND_FROM_NAME:MyShop}
+
+# Xem log chi tiet hon
+# Trong application-local.yaml, them:
+logging:
+  level:
+    org.springframework.orm.jpa: DEBUG
+    org.hibernate.SQL: DEBUG

@@ -63,6 +63,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public RoleResponse getDetails(String id) {
         log.info("Get role details with id: {}", id);
 
@@ -72,6 +73,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiPagination<RoleResponse> getAll(Specification<Role> spec, Pageable pageable) {
         log.info("Get all roles");
 
@@ -105,12 +107,14 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Role findByName(String name) {
         return roleRepository.findByName(name)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Role findById(String id) {
         return roleRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));

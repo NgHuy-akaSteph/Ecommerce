@@ -1,5 +1,7 @@
 package com.myapp.ecommerce.dto.request;
 
+import com.myapp.ecommerce.entity.enums.OrderStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +14,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Schema(description = "Request payload for updating an order status.")
 public class OrderUpdateRequest {
-    String status;
+
+    @Schema(description = "New order status enum value.")
+    OrderStatus status;
 }

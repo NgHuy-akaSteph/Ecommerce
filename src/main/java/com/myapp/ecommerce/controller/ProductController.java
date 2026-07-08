@@ -4,13 +4,13 @@ import com.myapp.ecommerce.dto.request.DeleteAllRequest;
 import com.myapp.ecommerce.dto.request.ProductCreationRequest;
 import com.myapp.ecommerce.dto.request.ProductUpdateRequest;
 import com.myapp.ecommerce.dto.response.ApiPagination;
-import com.myapp.ecommerce.dto.response.ApiString;
+import com.myapp.ecommerce.dto.response.ApiResponse;
 import com.myapp.ecommerce.dto.response.ProductResponse;
 import com.myapp.ecommerce.entity.Product;
 import com.myapp.ecommerce.service.ProductService;
-import com.myapp.ecommerce.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -33,52 +33,50 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
+@Tag(name = "Products", description = "Product CRUD operations")
 public class ProductController {
     ProductService productService;
 
     @PostMapping
-    @ApiMessage("Create a product successfully")
-    ResponseEntity<ProductResponse> create(@RequestBody @Valid ProductCreationRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.create(request));
+    ResponseEntity<ApiResponse<ProductResponse>> create(@RequestBody @Valid ProductCreationRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("Create a product successfully", productService.create(request)));
     }
 
     @GetMapping
-    @ApiMessage("Get all products successfully")
-    ResponseEntity<ApiPagination<ProductResponse>> getAllProducts(@Filter Specification<Product> spec, Pageable pageable){
-        return ResponseEntity.ok().body(productService.getAll(spec, pageable));
+    ResponseEntity<ApiResponse<ApiPagination<ProductResponse>>> getAllProducts(@Filter Specification<Product> spec, Pageable pageable) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Get all products successfully", productService.getAll(spec, pageable)));
     }
 
     @GetMapping("/category/{id}")
-    @ApiMessage("Fetch products by category successfully")
-    ResponseEntity<ApiPagination<ProductResponse>> fetchByCategory(@PathVariable("id") String categoryId, Pageable pageable){
-        return ResponseEntity.ok().body(productService.fetchProductsByCategory(categoryId, pageable));
+    ResponseEntity<ApiResponse<ApiPagination<ProductResponse>>> fetchByCategory(@PathVariable("id") String categoryId, Pageable pageable) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Fetch products by category successfully", productService.fetchProductsByCategory(categoryId, pageable)));
     }
 
     @GetMapping("/{id}")
-    @ApiMessage("Get product details successfully")
-    ResponseEntity<ProductResponse> getDetails(@PathVariable("id") String productId){
-        return ResponseEntity.ok().body(productService.getDetails(productId));
+    ResponseEntity<ApiResponse<ProductResponse>> getDetails(@PathVariable("id") String productId) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Get product details successfully", productService.getDetails(productId)));
     }
 
     @PutMapping("/{id}")
-    @ApiMessage("Update product successfully")
-    ResponseEntity<ProductResponse> update(@PathVariable("id") String productId,
-                                           @RequestBody @Valid ProductUpdateRequest request){
-        return ResponseEntity.ok().body(productService.update(productId, request));
+    ResponseEntity<ApiResponse<ProductResponse>> update(@PathVariable("id") String productId,
+                                                        @RequestBody @Valid ProductUpdateRequest request) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Update product successfully", productService.update(productId, request)));
     }
 
     @DeleteMapping("/{id}")
-    @ApiMessage("Delete product successfully")
-    ResponseEntity<ApiString> delete(@PathVariable("id") String productId){
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") String productId) {
         productService.delete(productId);
-        return ResponseEntity.ok().body(new ApiString("success"));
+        return ResponseEntity.ok().body(ApiResponse.ok("Delete product successfully", "success"));
     }
 
     @DeleteMapping("/deleteAll")
-    @ApiMessage("Delete all products successfully")
-    ResponseEntity<ApiString> deleteListOrder(@RequestBody DeleteAllRequest request){
+    ResponseEntity<ApiResponse<String>> deleteListOrder(@RequestBody DeleteAllRequest request) {
         productService.deleteAllById(request.getIds());
-        return ResponseEntity.ok().body(new ApiString("success"));
+        return ResponseEntity.ok().body(ApiResponse.ok("Delete all products successfully", "success"));
     }
-
 }

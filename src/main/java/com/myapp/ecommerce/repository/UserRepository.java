@@ -19,4 +19,17 @@ public interface UserRepository extends JpaRepository<User, String> {
     Page<User> findAll(Specification<User> spec, Pageable pageable);
 
     User findByRefreshTokenAndUsername(String username, String refreshToken);
+
+    Optional<User> findByEmail(String email);
+
+    boolean existsByEmail(String email);
+
+    default Optional<User> findByUsernameOrEmail(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            return Optional.empty();
+        }
+        return identifier.contains("@")
+                ? findByEmail(identifier.trim())
+                : findByUsername(identifier.trim());
+    }
 }

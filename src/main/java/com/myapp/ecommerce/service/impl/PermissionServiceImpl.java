@@ -70,6 +70,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PermissionResponse getDetail(String id) {
         log.info("Get detail a permission with id: {}", id);
 
@@ -79,6 +80,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiPagination<PermissionResponse> getAll(Specification<Permission> spec, Pageable pageable) {
         log.info("Get all permissions");
 
@@ -100,6 +102,7 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Permission> fetchPermissionsByIds(List<String> ids) {
         return permissionRepository.findAllById(ids);
     }

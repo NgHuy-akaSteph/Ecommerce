@@ -38,7 +38,7 @@ public class Cart extends BaseEntity {
     @JoinColumn(name = "user_id")
     User user;
 
-    @OneToMany(mappedBy = "cart", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY)
     List<CartDetail> cartDetails;
 
 }

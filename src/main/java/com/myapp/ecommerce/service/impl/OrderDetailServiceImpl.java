@@ -66,6 +66,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OrderDetailResponse getById(String id) {
         log.info("Get order detail by id");
         OrderDetail entityDB = orderDetailRepository.findById(id)
@@ -74,6 +75,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiPagination<OrderDetailResponse> getAll(Specification<OrderDetail> spec, Pageable pageable) {
         log.info("Get all order details");
         Page<OrderDetail> page = orderDetailRepository.findAll(spec, pageable);

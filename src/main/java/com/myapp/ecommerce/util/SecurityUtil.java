@@ -53,13 +53,13 @@ public class SecurityUtil {
 
     public String generateAccessToken(String username, UserResponse userResponse) throws JOSEException {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
-        // Thong tin user trong token
+
         UserInToken user = UserInToken.builder()
                 .id(userResponse.getId())
                 .username(username)
-                .role(userResponse.getRole().getName())
+                .role(userResponse.getRoleName())
                 .build();
-        // Time
+        
         Instant now = Instant.now();
         Instant validity = now.plus(tokenExpiration, ChronoUnit.SECONDS);
 

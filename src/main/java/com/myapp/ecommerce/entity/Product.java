@@ -46,7 +46,6 @@ public class Product extends BaseEntity {
     @Column(name = "sliders")
     List<String> sliders;
     BigDecimal price;
-    long quantity;
     BigDecimal discount;
 
     @ManyToOne
@@ -67,5 +66,9 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product")
     @JsonIgnore
     List<CartDetail> cartDetails;
+
+    @OneToMany(mappedBy = "product")
+    @JsonIgnore
+    List<ProductVariant> variants;
 
 }

@@ -26,6 +26,7 @@ public class CartDetailResponse {
     long quantity;
     BigDecimal price;
     Product product;
+    VariantInfo variant;
 
     @NoArgsConstructor
     @AllArgsConstructor
@@ -40,5 +41,19 @@ public class CartDetailResponse {
         BigDecimal price;
         String thumbnail;
         List<String> sliders;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Data
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    @JsonPropertyOrder(alphabetic = true)
+    public static class VariantInfo {
+        @JsonProperty("_id")
+        String id;
+        String sku;
+        long quantity;
+        BigDecimal price;
     }
 }

@@ -6,6 +6,7 @@ import com.myapp.ecommerce.dto.response.UserResponse;
 import com.myapp.ecommerce.dto.response.ApiPagination;
 import com.myapp.ecommerce.entity.CartDetail;
 import com.myapp.ecommerce.entity.Order;
+import com.myapp.ecommerce.entity.Permission;
 import com.myapp.ecommerce.entity.Role;
 import com.myapp.ecommerce.entity.User;
 import com.myapp.ecommerce.exception.AppException;
@@ -72,13 +73,14 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
-
         List<User> users = userRepository.findAll();
         return users.stream().map(userMapper::toUserResponse).toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiPagination<UserResponse> getAllUsers(Specification<User> spec, Pageable pageable) {
         log.info("Get all users");
 
@@ -99,6 +101,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserResponse getUserById(String userId) {
         log.info("Get details of user");
 
@@ -108,6 +111,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserResponse getMyInfo() {
         log.info("Get my info");
 
@@ -118,6 +122,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -191,8 +196,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUserByUsernameAndRefreshToken(String username, String refreshToken) {
         return userRepository.findByRefreshTokenAndUsername(refreshToken, username);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public User getUserByUsernameOrEmail(String identifier) {
+        return userRepository.findByUsernameOrEmail(identifier)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean hasPermission(String username, String path, String httpMethod) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null || user.getRole() == null) {
+            return true;
+        }
+        Role role = user.getRole();
+        List<Permission> permissions = role.getPermissions();
+        return permissions.stream().anyMatch(p ->
+                p.getApiPath().equals(path) && p.getMethod().equals(httpMethod));
     }
 
 }
