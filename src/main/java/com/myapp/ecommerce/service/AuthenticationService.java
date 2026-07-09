@@ -82,6 +82,7 @@ public class AuthenticationService {
         return IntrospectResponse.builder().valid(isValid).build();
     }
 
+    @Transactional
     public LoginResult login(AuthenticationRequest request) throws JOSEException {
         User existingUser = userService.getUserByUsernameOrEmail(request.getUsername());
 
@@ -89,26 +90,28 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.ACCOUNT_LOCKED);
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                request.getUsername(), request.getPassword()
-        );
+        synchronized (this) {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    request.getUsername(), request.getPassword()
+            );
 
-        try {
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            try {
+                Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            existingUser.setFailedLoginAttempts(0);
-            existingUser.setLockedUntil(null);
-            userRepository.save(existingUser);
-        } catch (BadCredentialsException e) {
-            int attempts = (existingUser.getFailedLoginAttempts() == null ? 0 : existingUser.getFailedLoginAttempts()) + 1;
-            existingUser.setFailedLoginAttempts(attempts);
-            if (attempts >= 5) {
-                existingUser.setLockedUntil(Instant.now().plus(15, ChronoUnit.MINUTES));
                 existingUser.setFailedLoginAttempts(0);
+                existingUser.setLockedUntil(null);
+                userRepository.save(existingUser);
+            } catch (BadCredentialsException e) {
+                int attempts = (existingUser.getFailedLoginAttempts() == null ? 0 : existingUser.getFailedLoginAttempts()) + 1;
+                existingUser.setFailedLoginAttempts(attempts);
+                if (attempts >= 5) {
+                    existingUser.setLockedUntil(Instant.now().plus(15, ChronoUnit.MINUTES));
+                    existingUser.setFailedLoginAttempts(0);
+                }
+                userRepository.save(existingUser);
+                throw new AppException(ErrorCode.BAD_CREDENTIALS);
             }
-            userRepository.save(existingUser);
-            throw new AppException(ErrorCode.BAD_CREDENTIALS);
         }
 
         User currentUser = userService.getUserByUsernameOrEmail(request.getUsername());

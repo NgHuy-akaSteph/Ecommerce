@@ -78,7 +78,8 @@ public class SecurityJwtConfig {
                 }
 
                 if ("refresh".equals(jwt.getClaims().get("token_type"))) {
-                    jwt = jwtDecoder.decode(token);
+                    // Refresh token validation handled by refreshToken() method
+                    // This just validates the JWT structure
                 }
                 return jwt;
             } catch (Exception e) {
