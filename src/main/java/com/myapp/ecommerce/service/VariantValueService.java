@@ -4,18 +4,19 @@ import com.myapp.ecommerce.dto.request.VariantValueRequest;
 import com.myapp.ecommerce.dto.response.VariantValueResponse;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface VariantValueService {
 
     VariantValueResponse create(VariantValueRequest request);
 
-    VariantValueResponse update(String valueId, VariantValueRequest request);
+    VariantValueResponse update(UUID valueId, VariantValueRequest request);
 
-    VariantValueResponse getDetails(String valueId);
+    VariantValueResponse getDetails(UUID valueId);
 
     List<VariantValueResponse> getAll();
 
-    List<VariantValueResponse> getByOptionId(String optionId);
+    List<VariantValueResponse> getByOptionId(UUID optionId);
 
-    void delete(String valueId);
+    void delete(UUID valueId);
 }

@@ -4,22 +4,24 @@ import com.myapp.ecommerce.dto.request.ProductVariantRequest;
 import com.myapp.ecommerce.dto.response.ProductVariantResponse;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public interface ProductVariantService {
 
     ProductVariantResponse create(ProductVariantRequest request);
 
-    ProductVariantResponse update(String variantId, ProductVariantRequest request);
+    ProductVariantResponse update(UUID variantId, ProductVariantRequest request);
 
-    ProductVariantResponse getDetails(String variantId);
+    ProductVariantResponse getDetails(UUID variantId);
 
-    List<ProductVariantResponse> getByProductId(String productId);
+    List<ProductVariantResponse> getByProductId(UUID productId);
 
     List<ProductVariantResponse> getAll();
 
-    void delete(String variantId);
+    void delete(UUID variantId);
 
-    boolean decrementStock(String variantId, long quantity);
+    boolean decrementStock(UUID variantId, long quantity);
 
-    void incrementStock(String variantId, long quantity);
+    void incrementStock(UUID variantId, long quantity);
 }

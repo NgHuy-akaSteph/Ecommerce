@@ -1,5 +1,5 @@
 -- =============================================
--- V5: Auth Verification & Address Tables
+-- V4: Auth Verification & Address Tables
 -- Tách riêng email_verifications (token-based) và addresses (multi-address).
 -- =============================================
 
@@ -17,8 +17,12 @@ CREATE TABLE email_verifications (
     status          VARCHAR(50) NOT NULL DEFAULT 'PENDING',  -- 'PENDING' | 'VERIFIED' | 'EXPIRED' | 'USED'
     expires_at      TIMESTAMP WITH TIME ZONE NOT NULL,
     verified_at     TIMESTAMP WITH TIME ZONE,
+    deleted    BOOLEAN NOT NULL DEFAULT FALSE,
+    version     BIGINT NOT NULL DEFAULT 0,
     created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_by      VARCHAR(255) DEFAULT '',
+    updated_by      VARCHAR(255) DEFAULT '',
 
     CONSTRAINT chk_verification_type CHECK (type IN ('EMAIL_VERIFY', 'PASSWORD_RESET')),
     CONSTRAINT chk_verification_status CHECK (status IN ('PENDING', 'VERIFIED', 'EXPIRED', 'USED'))
@@ -54,6 +58,8 @@ CREATE TABLE addresses (
     version     BIGINT NOT NULL DEFAULT 0,
     created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_by  VARCHAR(255) DEFAULT '',
+    updated_by  VARCHAR(255) DEFAULT '',
 
     CONSTRAINT chk_address_label CHECK (label IS NULL OR label IN ('HOME', 'WORK', 'OTHER'))
 );

@@ -42,6 +42,7 @@ import java.util.List;
 import java.math.RoundingMode;
 import java.util.Set;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(ErrorCode.VERIFICATION_REQUIRED);
         }
 
-        List<String> detailIds = request.getDetail().stream()
+        List<UUID> detailIds = request.getDetail().stream()
                 .map(OrderCreationRequest.DetailRequest::getId).toList();
 
         Cart cart = cartRepository.findByUser(user);
@@ -82,10 +83,10 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(ErrorCode.CART_DETAIL_NOT_EXISTED);
         }
 
-        Set<String> ownedCartDetailIds = cart.getCartDetails().stream()
+        Set<UUID> ownedCartDetailIds = cart.getCartDetails().stream()
                 .map(cd -> cd.getId())
                 .collect(Collectors.toSet());
-        for (String id : detailIds) {
+        for (UUID id : detailIds) {
             if (!ownedCartDetailIds.contains(id)) {
                 throw new AppException(ErrorCode.CART_DETAIL_ACCESS_DENIED);
             }
@@ -143,7 +144,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderResponse update(String id, OrderUpdateRequest request) {
+    public OrderResponse update(UUID id, OrderUpdateRequest request) {
         log.info("Update a order");
         String username = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
@@ -240,7 +241,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public OrderResponse getById(String id) {
+    public OrderResponse getById(UUID id) {
         log.info("Get a order by id");
         String username = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
@@ -259,7 +260,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void delete(String id) {
+    public void delete(UUID id) {
         log.info("Cancel a order by id");
         String username = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
@@ -287,7 +288,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void deleteAll(List<String> ids) {
+    public void deleteAll(List<UUID> ids) {
         log.info("Cancel all orders by ids");
         String username = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));

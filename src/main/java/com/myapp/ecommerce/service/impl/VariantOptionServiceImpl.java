@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +42,7 @@ public class VariantOptionServiceImpl implements VariantOptionService {
 
     @Override
     @Transactional
-    public VariantOptionResponse update(String optionId, VariantOptionRequest request) {
+    public VariantOptionResponse update(UUID optionId, VariantOptionRequest request) {
         log.info("Update variant option: {}", optionId);
 
         VariantOption option = variantOptionRepository.findById(optionId)
@@ -58,7 +59,7 @@ public class VariantOptionServiceImpl implements VariantOptionService {
 
     @Override
     @Transactional(readOnly = true)
-    public VariantOptionResponse getDetails(String optionId) {
+    public VariantOptionResponse getDetails(UUID optionId) {
         VariantOption option = variantOptionRepository.findById(optionId)
                 .orElseThrow(() -> new AppException(ErrorCode.VARIANT_OPTION_NOT_FOUND));
         return variantOptionMapper.toResponse(option);
@@ -74,7 +75,7 @@ public class VariantOptionServiceImpl implements VariantOptionService {
 
     @Override
     @Transactional
-    public void delete(String optionId) {
+    public void delete(UUID optionId) {
         log.info("Delete variant option: {}", optionId);
         variantOptionRepository.findById(optionId)
                 .orElseThrow(() -> new AppException(ErrorCode.VARIANT_OPTION_NOT_FOUND));

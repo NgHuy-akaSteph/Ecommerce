@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +58,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Override
     @Transactional
-    public OrderDetailResponse update(String id, OrderDetailRequest request) {
+    public OrderDetailResponse update(UUID id, OrderDetailRequest request) {
         log.info("Update a order detail");
         OrderDetail entityDB = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -67,7 +68,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Override
     @Transactional(readOnly = true)
-    public OrderDetailResponse getById(String id) {
+    public OrderDetailResponse getById(UUID id) {
         log.info("Get order detail by id");
         OrderDetail entityDB = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -96,7 +97,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Override
     @Transactional
-    public void delete(String id) {
+    public void delete(UUID id) {
         log.info("Delete a order detail");
         orderDetailRepository.deleteById(id);
     }

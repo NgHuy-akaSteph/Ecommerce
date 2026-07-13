@@ -9,14 +9,15 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Repository
-public interface VariantValueRepository extends JpaRepository<VariantValue, String> {
+public interface VariantValueRepository extends JpaRepository<VariantValue, UUID> {
 
-    List<VariantValue> findByOptionId(String optionId);
+    List<VariantValue> findByOptionId(UUID optionId);
 
-    Optional<VariantValue> findByOptionIdAndValue(String optionId, String value);
+    Optional<VariantValue> findByOptionIdAndValue(UUID optionId, String value);
 
     @Query("SELECT vv FROM VariantValue vv WHERE vv.id IN :ids")
-    List<VariantValue> findAllByIdIn(@Param("ids") Set<String> ids);
+    List<VariantValue> findAllByIdIn(@Param("ids") Set<UUID> ids);
 }

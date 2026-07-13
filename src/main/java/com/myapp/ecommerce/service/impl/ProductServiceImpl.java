@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -63,9 +64,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse update(String productId, ProductUpdateRequest request) {
+    public ProductResponse update(UUID productId, ProductUpdateRequest request) {
         log.info("Update a product");
-        
+
         Product entityDB = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         productMapper.updateProduct(entityDB, request);
@@ -85,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public ProductResponse getDetails(String productId) {
+    public ProductResponse getDetails(UUID productId) {
         log.info("Get product details");
 
         Product product = productRepository.findById(productId)
@@ -95,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public Product getProductById(String productId) {
+    public Product getProductById(UUID productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
     }
@@ -129,7 +130,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void delete(String productId) {
+    public void delete(UUID productId) {
         log.info("Delete a product");
 
         Product product = productRepository.findById(productId)
@@ -141,7 +142,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public ApiPagination<ProductResponse> fetchProductsByCategory(String categoryId, Pageable pageable) {
+    public ApiPagination<ProductResponse> fetchProductsByCategory(UUID categoryId, Pageable pageable) {
         log.info("Fetch products by category");
 
         Category category = categoryRepository.findById(categoryId)
@@ -182,7 +183,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void deleteAllById(List<String> productIds) {
+    public void deleteAllById(List<UUID> productIds) {
         List<Product> products = productRepository.findAllById(productIds);
 
         // Delete in database

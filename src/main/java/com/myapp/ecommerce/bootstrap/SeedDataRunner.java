@@ -10,6 +10,7 @@ import com.myapp.ecommerce.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.AccessLevel;
+import lombok.experimental.NonFinal;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +24,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Seeds default Roles, Permissions, and demo users on application startup.
- *
+ * <p>
  * Idempotent: safe to run on every boot. Uses ON CONFLICT DO NOTHING for permissions
  * (unique constraint on api_path + method), and find-or-create for roles/users.
- *
+ * <p>
  * Disabled in "test" profile to avoid polluting unit/integration test data.
  */
 @Component
@@ -39,10 +41,10 @@ import java.util.Set;
 @Slf4j
 public class SeedDataRunner implements CommandLineRunner {
 
-    public static final String ADMIN_ROLE_ID = "00000000-0000-0000-0000-000000000001";
-    public static final String USER_ROLE_ID  = "00000000-0000-0000-0000-000000000002";
-    public static final String ADMIN_USER_ID = "00000000-0000-0000-0000-000000000003";
-    public static final String DEMO_USER_ID  = "00000000-0000-0000-0000-000000000004";
+    public static final UUID ADMIN_ROLE_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    public static final UUID USER_ROLE_ID  = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    public static final UUID ADMIN_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000003");
+    public static final UUID DEMO_USER_ID  = UUID.fromString("00000000-0000-0000-0000-000000000004");
 
     PermissionRepository permissionRepository;
     RoleRepository roleRepository;
@@ -54,18 +56,23 @@ public class SeedDataRunner implements CommandLineRunner {
     EntityManager entityManager;
 
     @Value("${app.seed.default-admin-username:admin}")
+    @NonFinal
     String adminUsername;
 
     @Value("${app.seed.default-admin-password:12345678}")
+    @NonFinal
     String adminPassword;
 
     @Value("${app.seed.default-user-username:user01}")
+    @NonFinal
     String demoUsername;
 
     @Value("${app.seed.default-user-password:12345678}")
+    @NonFinal
     String demoPassword;
 
     @Value("${app.seed.default-user-email:user01@example.com}")
+    @NonFinal
     String demoEmail;
 
     @Override
@@ -101,7 +108,7 @@ public class SeedDataRunner implements CommandLineRunner {
         log.info("Seeded {} permission definitions", defs.size());
     }
 
-    private Role seedRole(String id, String name, String description) {
+    private Role seedRole(UUID id, String name, String description) {
         Optional<Role> existing = roleRepository.findById(id);
         if (existing.isPresent()) {
             return existing.get();
@@ -165,7 +172,7 @@ public class SeedDataRunner implements CommandLineRunner {
         log.info("Assigned USER-role allowlist to role {}", role.getName());
     }
 
-    private long countPermissionsForRole(String roleId) {
+    private long countPermissionsForRole(UUID roleId) {
         Number n = (Number) entityManager.createNativeQuery(
                 "SELECT COUNT(*) FROM permission_role WHERE role_id = ?1")
                 .setParameter(1, roleId)
@@ -173,7 +180,7 @@ public class SeedDataRunner implements CommandLineRunner {
         return n.longValue();
     }
 
-    private void seedUser(String deterministicId, String username, String rawPassword,
+    private void seedUser(UUID deterministicId, String username, String rawPassword,
                           String name, Role role, String email) {
         Optional<User> existing = userRepository.findByUsername(username);
         User user;

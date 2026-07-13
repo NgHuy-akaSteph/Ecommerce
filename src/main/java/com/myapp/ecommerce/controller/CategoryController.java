@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.data.domain.Pageable;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/categories")
 @RequiredArgsConstructor
@@ -49,19 +51,19 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<CategoryResponse>> getDetails(@PathVariable("id") String categoryId) {
+    ResponseEntity<ApiResponse<CategoryResponse>> getDetails(@PathVariable("id") UUID categoryId) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get category details successfully", categoryService.getDetails(categoryId)));
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<CategoryResponse>> update(@PathVariable("id") String categoryId, @RequestBody @Valid CategoryRequest request) {
+    ResponseEntity<ApiResponse<CategoryResponse>> update(@PathVariable("id") UUID categoryId, @RequestBody @Valid CategoryRequest request) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Update category successfully", categoryService.update(categoryId, request)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") String categoryId) {
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") UUID categoryId) {
         categoryService.delete(categoryId);
         return ResponseEntity.ok().body(ApiResponse.ok("Delete category successfully", "success"));
     }

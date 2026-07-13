@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,8 +25,8 @@ public class OrderDetailRequest {
     double price;
 
     @Schema(description = "Id of the product in this order detail.")
-    String productId;
+    UUID productId;
 
     @Schema(description = "Id of the parent order.")
-    String orderId;
+    UUID orderId;
 }

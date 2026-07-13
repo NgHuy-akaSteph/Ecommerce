@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -126,7 +127,7 @@ public class CartServiceImpl implements CartService {
         Product product = productService.getProductById(request.getProductId());
 
         CartDetail cartDetail;
-        if (request.getVariantId() != null && !request.getVariantId().isBlank()) {
+        if (request.getVariantId() != null) {
             ProductVariant variant = productVariantRepository.findById(request.getVariantId())
                     .orElseThrow(() -> new AppException(ErrorCode.VARIANT_NOT_FOUND));
             cartDetail = cartDetailService.fetchByCartAndProductAndVariant(cart, product, variant);
@@ -156,7 +157,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartResponse handleRemoveCartDetail(String id) {
+    public CartResponse handleRemoveCartDetail(UUID id) {
         String username = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
         User user = userService.getUserByUsername(username);
@@ -178,15 +179,15 @@ public class CartServiceImpl implements CartService {
     }
 
     private ProductVariant resolveVariant(CartRequest request) {
-        if (request.getVariantId() != null && !request.getVariantId().isBlank()) {
+        if (request.getVariantId() != null) {
             return productVariantRepository.findById(request.getVariantId())
                     .orElseThrow(() -> new AppException(ErrorCode.VARIANT_NOT_FOUND));
         }
         return null;
     }
 
-    private ProductVariant getDefaultVariant(String productId) {
+    private ProductVariant getDefaultVariant(UUID productId) {
         List<ProductVariant> variants = productVariantRepository.findActiveByProductId(productId);
-        return variants.isEmpty() ? null : variants.get(0);
+        return variants.isEmpty() ? null : variants.getFirst();
     }
 }

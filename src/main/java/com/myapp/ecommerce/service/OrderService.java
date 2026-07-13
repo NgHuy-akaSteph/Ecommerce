@@ -9,15 +9,16 @@ import org.springframework.data.jpa.domain.Specification;
 import com.myapp.ecommerce.entity.Order;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface OrderService {
 
     OrderResponse create(OrderCreationRequest request);
-    OrderResponse update(String id, OrderUpdateRequest request);
+    OrderResponse update(UUID id, OrderUpdateRequest request);
     ApiPagination<OrderResponse> getAll(Specification<Order> spec, Pageable pageable);
     List<OrderResponse> getAll();
     ApiPagination<OrderResponse> getHistory(Pageable pageable);
-    OrderResponse getById(String id);
-    void delete(String id);
-    void deleteAll(List<String> ids);
+    OrderResponse getById(UUID id);
+    void delete(UUID id);
+    void deleteAll(List<UUID> ids);
 }

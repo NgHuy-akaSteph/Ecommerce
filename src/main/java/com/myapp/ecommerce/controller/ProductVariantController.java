@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/product-variants")
@@ -39,26 +40,26 @@ public class ProductVariantController {
     }
 
     @GetMapping("/product/{productId}")
-    ResponseEntity<ApiResponse<List<ProductVariantResponse>>> getByProduct(@PathVariable String productId) {
+    ResponseEntity<ApiResponse<List<ProductVariantResponse>>> getByProduct(@PathVariable UUID productId) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get variants by product", productVariantService.getByProductId(productId)));
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<ProductVariantResponse>> getDetails(@PathVariable String id) {
+    ResponseEntity<ApiResponse<ProductVariantResponse>> getDetails(@PathVariable UUID id) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get variant details", productVariantService.getDetails(id)));
     }
 
     @PutMapping("/{id}")
     ResponseEntity<ApiResponse<ProductVariantResponse>> update(
-            @PathVariable String id, @RequestBody @Valid ProductVariantRequest request) {
+            @PathVariable UUID id, @RequestBody @Valid ProductVariantRequest request) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Update product variant", productVariantService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<String>> delete(@PathVariable String id) {
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable UUID id) {
         productVariantService.delete(id);
         return ResponseEntity.ok().body(ApiResponse.ok("Delete product variant", "success"));
     }

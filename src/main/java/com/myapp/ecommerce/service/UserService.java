@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
+import java.util.UUID;
 
 
 public interface UserService {
@@ -19,15 +20,15 @@ public interface UserService {
 
     ApiPagination<UserResponse> getAllUsers(Specification<User> spec, Pageable pageable);
 
-    UserResponse getUserById(String userId);
+    UserResponse getUserById(UUID userId);
 
     UserResponse getMyInfo();
 
     User getUserByUsername(String username);
 
-    UserResponse update(String userId, UserUpdateRequest request);
+    UserResponse update(UUID userId, UserUpdateRequest request);
 
-    void delete(String userId);
+    void delete(UUID userId);
 
     boolean isExistByUsername(String username);
 

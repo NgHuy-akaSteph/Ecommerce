@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,7 +22,7 @@ public class VariantValueRequest {
 
     @Schema(description = "ID of the parent option this value belongs to.")
     @NotBlank(message = "INVALID_OPTION_ID")
-    String optionId;
+    UUID optionId;
 
     @Schema(description = "Value display text, e.g. 'Small', 'Red'.")
     @NotBlank(message = "INVALID_VALUE")

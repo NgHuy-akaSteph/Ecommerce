@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -23,7 +24,7 @@ import java.util.Set;
 public class ProductVariantRequest {
 
     @Schema(description = "ID of the parent product. Required for creation.")
-    String productId;
+    UUID productId;
 
     @Schema(description = "Unique SKU for this variant.")
     @NotBlank(message = "INVALID_SKU")
@@ -43,5 +44,5 @@ public class ProductVariantRequest {
     long quantity;
 
     @Schema(description = "Set of value IDs that define this variant's options.")
-    Set<String> valueIds;
+    Set<UUID> valueIds;
 }

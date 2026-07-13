@@ -3,7 +3,6 @@ package com.myapp.ecommerce.service.impl;
 import com.myapp.ecommerce.dto.request.RoleRequest;
 import com.myapp.ecommerce.dto.response.ApiPagination;
 import com.myapp.ecommerce.dto.response.RoleResponse;
-import com.myapp.ecommerce.entity.Permission;
 import com.myapp.ecommerce.entity.Role;
 import com.myapp.ecommerce.exception.AppException;
 import com.myapp.ecommerce.exception.ErrorCode;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +47,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional
-    public RoleResponse update(String id, RoleRequest request) {
+    public RoleResponse update(UUID id, RoleRequest request) {
         log.info("Update role with id: {}", id);
 
         Role entityDB = roleRepository.findById(id)
@@ -64,7 +64,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional(readOnly = true)
-    public RoleResponse getDetails(String id) {
+    public RoleResponse getDetails(UUID id) {
         log.info("Get role details with id: {}", id);
 
         Role entityDB = roleRepository.findById(id)
@@ -96,14 +96,14 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional
-    public String delete(String id) {
+    public UUID delete(UUID id) {
         log.info("Delete role with id: {}", id);
 
         Role entityDB = roleRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
         entityDB.setActive(false);
         roleRepository.save(entityDB);
-        return "Delete success";
+        return id;
     }
 
     @Override
@@ -115,7 +115,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     @Transactional(readOnly = true)
-    public Role findById(String id) {
+    public Role findById(UUID id) {
         return roleRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
     }

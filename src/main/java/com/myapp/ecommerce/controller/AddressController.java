@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/addresses")
@@ -46,7 +47,7 @@ public class AddressController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<AddressResponse>> getById(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<AddressResponse>> getById(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(
                 ApiResponse.ok("Get address successfully",
                         addressService.getById(id, currentUserId()))
@@ -62,7 +63,7 @@ public class AddressController {
 
     @PutMapping("/{id}")
     ResponseEntity<ApiResponse<AddressResponse>> update(
-            @PathVariable("id") String id,
+            @PathVariable("id") UUID id,
             @Valid @RequestBody AddressRequest request) {
         return ResponseEntity.ok(
                 ApiResponse.ok("Update address successfully",
@@ -70,19 +71,19 @@ public class AddressController {
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<Void>> delete(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<Void>> delete(@PathVariable("id") UUID id) {
         addressService.delete(id, currentUserId());
         return ResponseEntity.ok(ApiResponse.ok("Delete address successfully", null));
     }
 
     @PutMapping("/{id}/default")
-    ResponseEntity<ApiResponse<AddressResponse>> setDefault(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<AddressResponse>> setDefault(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(
                 ApiResponse.ok("Set default address successfully",
                         addressService.setDefault(id, currentUserId())));
     }
 
-    private String currentUserId() {
+    private UUID currentUserId() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));

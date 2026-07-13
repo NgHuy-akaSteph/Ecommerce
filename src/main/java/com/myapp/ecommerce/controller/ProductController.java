@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/products")
 @RequiredArgsConstructor
@@ -50,26 +52,26 @@ public class ProductController {
     }
 
     @GetMapping("/category/{id}")
-    ResponseEntity<ApiResponse<ApiPagination<ProductResponse>>> fetchByCategory(@PathVariable("id") String categoryId, Pageable pageable) {
+    ResponseEntity<ApiResponse<ApiPagination<ProductResponse>>> fetchByCategory(@PathVariable("id") UUID categoryId, Pageable pageable) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Fetch products by category successfully", productService.fetchProductsByCategory(categoryId, pageable)));
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<ProductResponse>> getDetails(@PathVariable("id") String productId) {
+    ResponseEntity<ApiResponse<ProductResponse>> getDetails(@PathVariable("id") UUID productId) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get product details successfully", productService.getDetails(productId)));
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<ProductResponse>> update(@PathVariable("id") String productId,
+    ResponseEntity<ApiResponse<ProductResponse>> update(@PathVariable("id") UUID productId,
                                                         @RequestBody @Valid ProductUpdateRequest request) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Update product successfully", productService.update(productId, request)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") String productId) {
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") UUID productId) {
         productService.delete(productId);
         return ResponseEntity.ok().body(ApiResponse.ok("Delete product successfully", "success"));
     }

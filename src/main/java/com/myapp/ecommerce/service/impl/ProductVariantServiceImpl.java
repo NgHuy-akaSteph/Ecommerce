@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +61,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional
-    public ProductVariantResponse update(String variantId, ProductVariantRequest request) {
+    public ProductVariantResponse update(UUID variantId, ProductVariantRequest request) {
         log.info("Update product variant: {}", variantId);
 
         ProductVariant variant = productVariantRepository.findById(variantId)
@@ -84,7 +85,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional(readOnly = true)
-    public ProductVariantResponse getDetails(String variantId) {
+    public ProductVariantResponse getDetails(UUID variantId) {
         ProductVariant variant = productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new AppException(ErrorCode.VARIANT_NOT_FOUND));
         return productVariantMapper.toResponse(variant);
@@ -92,7 +93,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductVariantResponse> getByProductId(String productId) {
+    public List<ProductVariantResponse> getByProductId(UUID productId) {
         return productVariantRepository.findActiveByProductId(productId).stream()
                 .map(productVariantMapper::toResponse)
                 .toList();
@@ -108,7 +109,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional
-    public void delete(String variantId) {
+    public void delete(UUID variantId) {
         log.info("Delete product variant: {}", variantId);
         productVariantRepository.findById(variantId)
                 .orElseThrow(() -> new AppException(ErrorCode.VARIANT_NOT_FOUND));
@@ -117,14 +118,14 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     @Override
     @Transactional
-    public boolean decrementStock(String variantId, long quantity) {
+    public boolean decrementStock(UUID variantId, long quantity) {
         int updated = productVariantRepository.decrementQuantity(variantId, quantity);
         return updated > 0;
     }
 
     @Override
     @Transactional
-    public void incrementStock(String variantId, long quantity) {
+    public void incrementStock(UUID variantId, long quantity) {
         productVariantRepository.incrementQuantity(variantId, quantity);
     }
 }

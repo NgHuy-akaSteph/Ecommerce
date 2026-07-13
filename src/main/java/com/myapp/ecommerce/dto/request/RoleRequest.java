@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -30,6 +31,6 @@ public class RoleRequest {
     boolean active;
 
     @Schema(description = "List of permission ids granted by this role.")
-    List<String> perIds; // List of permission ids
+    List<UUID> perIds; // List of permission ids
 
 }

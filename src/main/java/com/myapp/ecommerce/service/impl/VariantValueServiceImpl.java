@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +45,7 @@ public class VariantValueServiceImpl implements VariantValueService {
 
     @Override
     @Transactional
-    public VariantValueResponse update(String valueId, VariantValueRequest request) {
+    public VariantValueResponse update(UUID valueId, VariantValueRequest request) {
         log.info("Update variant value: {}", valueId);
 
         VariantValue value = variantValueRepository.findById(valueId)
@@ -60,7 +61,7 @@ public class VariantValueServiceImpl implements VariantValueService {
 
     @Override
     @Transactional(readOnly = true)
-    public VariantValueResponse getDetails(String valueId) {
+    public VariantValueResponse getDetails(UUID valueId) {
         VariantValue value = variantValueRepository.findById(valueId)
                 .orElseThrow(() -> new AppException(ErrorCode.VARIANT_VALUE_NOT_FOUND));
         return variantValueMapper.toResponse(value);
@@ -76,7 +77,7 @@ public class VariantValueServiceImpl implements VariantValueService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<VariantValueResponse> getByOptionId(String optionId) {
+    public List<VariantValueResponse> getByOptionId(UUID optionId) {
         return variantValueRepository.findByOptionId(optionId).stream()
                 .map(variantValueMapper::toResponse)
                 .toList();
@@ -84,7 +85,7 @@ public class VariantValueServiceImpl implements VariantValueService {
 
     @Override
     @Transactional
-    public void delete(String valueId) {
+    public void delete(UUID valueId) {
         log.info("Delete variant value: {}", valueId);
         variantValueRepository.findById(valueId)
                 .orElseThrow(() -> new AppException(ErrorCode.VARIANT_VALUE_NOT_FOUND));

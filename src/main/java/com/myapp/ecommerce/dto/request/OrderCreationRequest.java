@@ -14,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -56,6 +57,6 @@ public class OrderCreationRequest {
 
         @Schema(description = "Product id included in this order line.")
         @JsonProperty("_id")
-        String id;
+        UUID id;
     }
 }

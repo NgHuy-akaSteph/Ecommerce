@@ -10,6 +10,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import java.util.UUID;
+
 @Mapper(componentModel = "spring")
 public interface VariantValueMapper {
 
@@ -17,14 +19,16 @@ public interface VariantValueMapper {
         if (value == null) return null;
         VariantOptionResponse optionResp = null;
         if (value.getOption() != null) {
+            UUID optionId = value.getOption().getId();
             optionResp = VariantOptionResponse.builder()
-                    .id(value.getOption().getId())
+                    .id(optionId == null ? null : optionId.toString())
                     .name(value.getOption().getName())
                     .code(value.getOption().getCode())
                     .build();
         }
+        UUID valueId = value.getId();
         return VariantValueResponse.builder()
-                .id(value.getId())
+                .id(valueId == null ? null : valueId.toString())
                 .value(value.getValue())
                 .code(value.getCode())
                 .option(optionResp)

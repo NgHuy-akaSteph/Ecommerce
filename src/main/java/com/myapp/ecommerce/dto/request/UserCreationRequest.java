@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,5 +33,5 @@ public class UserCreationRequest {
     String name;
 
     @Schema(description = "Role id to assign to the user.")
-    String role;
+    UUID role;
 }

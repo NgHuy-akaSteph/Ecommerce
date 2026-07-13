@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional
-    public AddressResponse create(String userId, AddressRequest request) {
+    public AddressResponse create(UUID userId, AddressRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -67,7 +68,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional
-    public AddressResponse update(String addressId, String userId, AddressRequest request) {
+    public AddressResponse update(UUID addressId, UUID userId, AddressRequest request) {
         Address address = addressRepository.findByIdAndUserId(addressId, userId)
                 .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
 
@@ -99,7 +100,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional
-    public void delete(String addressId, String userId) {
+    public void delete(UUID addressId, UUID userId) {
         Address address = addressRepository.findByIdAndUserId(addressId, userId)
                 .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
         boolean wasDefault = address.isDefault();
@@ -118,7 +119,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AddressResponse> getMyAddresses(String userId) {
+    public List<AddressResponse> getMyAddresses(UUID userId) {
         return addressRepository.findByUserIdOrderByIsDefaultDescCreatedAtDesc(userId)
                 .stream()
                 .map(this::toResponse)
@@ -127,7 +128,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional(readOnly = true)
-    public AddressResponse getById(String addressId, String userId) {
+    public AddressResponse getById(UUID addressId, UUID userId) {
         Address address = addressRepository.findByIdAndUserId(addressId, userId)
                 .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
         return toResponse(address);
@@ -135,7 +136,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     @Transactional
-    public AddressResponse setDefault(String addressId, String userId) {
+    public AddressResponse setDefault(UUID addressId, UUID userId) {
         Address address = addressRepository.findByIdAndUserId(addressId, userId)
                 .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
 
@@ -153,8 +154,8 @@ public class AddressServiceImpl implements AddressService {
 
     private AddressResponse toResponse(Address a) {
         return AddressResponse.builder()
-                .id(a.getId())
-                .userId(a.getUser() != null ? a.getUser().getId() : null)
+                .id(String.valueOf(a.getId()))
+                .userId(a.getUser() != null ? String.valueOf(a.getUser().getId()) : null)
                 .fullName(a.getFullName())
                 .phone(a.getPhone())
                 .street(a.getStreet())

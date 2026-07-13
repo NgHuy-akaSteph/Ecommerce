@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -24,7 +25,7 @@ public abstract class BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     @JsonProperty("_id")
     @Column(columnDefinition = "uuid")
-    private String id;
+    private UUID id;
 
     @Version
     private Long version;

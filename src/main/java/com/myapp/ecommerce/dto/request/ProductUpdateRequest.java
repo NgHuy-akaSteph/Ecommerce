@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -36,10 +37,10 @@ public class ProductUpdateRequest {
     String shortDes;
 
     @Schema(description = "Updated parent category id.")
-    String categoryId;
+    UUID categoryId;
 
     @Schema(description = "Updated list of tag ids.")
-    List<String> tagsId;
+    List<UUID> tagsId;
 
     @Schema(description = "Updated discount amount as decimal.")
     BigDecimal discount;

@@ -10,28 +10,29 @@ import org.springframework.data.jpa.domain.Specification;
 
 
 import java.util.List;
+import java.util.UUID;
 
 public interface ProductService {
 
     ProductResponse create(ProductCreationRequest request);
 
-    ProductResponse update(String productId, ProductUpdateRequest request);
+    ProductResponse update(UUID productId, ProductUpdateRequest request);
 
-    ProductResponse getDetails (String productId);
+    ProductResponse getDetails(UUID productId);
 
-    Product getProductById(String productId);
+    Product getProductById(UUID productId);
 
     List<ProductResponse> getAll();
 
     ApiPagination<ProductResponse> getAll(Specification<Product> spec, Pageable pageable);
 
-    void delete(String productId);
+    void delete(UUID productId);
 
-    ApiPagination<ProductResponse> fetchProductsByCategory(String categoryId, Pageable pageable);
+    ApiPagination<ProductResponse> fetchProductsByCategory(UUID categoryId, Pageable pageable);
 
     void save(Product product);
 
     void deleteAll(List<Product> products);
 
-    void deleteAllById(List<String> productIds);
+    void deleteAllById(List<UUID> productIds);
 }

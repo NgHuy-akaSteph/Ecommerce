@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -49,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable("id") String userId) {
+    ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable("id") UUID userId) {
         return ResponseEntity.ok(ApiResponse.ok("Get detail of a user", userService.getUserById(userId)));
     }
 
@@ -59,13 +61,13 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") String userId) {
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") UUID userId) {
         userService.delete(userId);
         return ResponseEntity.ok().body(ApiResponse.ok("Delete a user", "User deleted successfully"));
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<UserResponse>> update(@PathVariable("id") String userId,
+    ResponseEntity<ApiResponse<UserResponse>> update(@PathVariable("id") UUID userId,
                                                      @RequestBody UserUpdateRequest request) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Update a user", userService.update(userId, request)));

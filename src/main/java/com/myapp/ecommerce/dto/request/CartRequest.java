@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.util.UUID;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,10 +19,10 @@ import lombok.experimental.FieldDefaults;
 public class CartRequest {
 
     @Schema(description = "Id of the product to add or modify in the cart.")
-    String productId;
+    UUID productId;
 
     @Schema(description = "Id of the specific variant to add. If not provided, uses the default variant.")
-    String variantId;
+    UUID variantId;
 
     @Schema(description = "Desired quantity.")
     long quantity;

@@ -19,9 +19,9 @@ import com.myapp.ecommerce.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -51,6 +52,7 @@ public class UserServiceImpl implements UserService {
     InvalidatedTokenService invalidatedTokenService;
 
     @Value("${app.jwt.access-token-validity-seconds}")
+    @NonFinal
     long accessTokenTtl;
 
 
@@ -109,7 +111,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponse getUserById(String userId) {
+    public UserResponse getUserById(UUID userId) {
         log.info("Get details of user");
 
         User user = userRepository.findById(userId)
@@ -131,23 +133,21 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
-        User user = userRepository.findByUsername(username)
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-//        Hibernate.initialize(user.getRole());
-        return user;
     }
 
 
     @Override
     @Transactional
-    public UserResponse update(String userId, UserUpdateRequest request) {
+    public UserResponse update(UUID userId, UserUpdateRequest request) {
         log.info("Update a user");
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Role oldRole = user.getRole();
-        String oldRoleId = oldRole != null ? oldRole.getId() : null;
+        UUID oldRoleId = oldRole != null ? oldRole.getId() : null;
 
         userMapper.updateUser(user, request);
 
@@ -159,7 +159,7 @@ public class UserServiceImpl implements UserService {
         User saved = userRepository.save(user);
 
         Role newRole = saved.getRole();
-        String newRoleId = newRole != null ? newRole.getId() : null;
+        UUID newRoleId = newRole != null ? newRole.getId() : null;
         if (oldRoleId != null && newRoleId != null && !oldRoleId.equals(newRoleId)) {
             invalidatedTokenService.invalidateAllTokensForUser(
                     saved.getUsername(), Duration.ofSeconds(accessTokenTtl));
@@ -171,7 +171,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void delete(String userId) {
+    public void delete(UUID userId) {
         log.info("Delete a user");
 
         User user = userRepository.findById(userId)

@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @Tag(name = "Admin", description = "Roles, permissions, and reports")
 @RequestMapping("/permissions")
@@ -51,19 +53,19 @@ public class PermissionController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<PermissionResponse>> getPermission(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<PermissionResponse>> getPermission(@PathVariable("id") UUID id) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get permission successfully", permissionService.getDetail(id)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<String>> deletePermission(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<String>> deletePermission(@PathVariable("id") UUID id) {
         permissionService.delete(id);
         return ResponseEntity.ok().body(ApiResponse.ok("Delete permission successfully", "success"));
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<PermissionResponse>> updatePermission(@PathVariable("id") String id,
+    ResponseEntity<ApiResponse<PermissionResponse>> updatePermission(@PathVariable("id") UUID id,
                                                                     @RequestBody @Valid PermissionRequest request) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Update permission successfully", permissionService.update(id, request)));

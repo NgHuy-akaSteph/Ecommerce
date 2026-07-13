@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/variant-values")
@@ -39,26 +40,26 @@ public class VariantValueController {
     }
 
     @GetMapping("/option/{optionId}")
-    ResponseEntity<ApiResponse<List<VariantValueResponse>>> getByOption(@PathVariable String optionId) {
+    ResponseEntity<ApiResponse<List<VariantValueResponse>>> getByOption(@PathVariable UUID optionId) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get variant values by option", variantValueService.getByOptionId(optionId)));
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<VariantValueResponse>> getDetails(@PathVariable String id) {
+    ResponseEntity<ApiResponse<VariantValueResponse>> getDetails(@PathVariable UUID id) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get variant value details", variantValueService.getDetails(id)));
     }
 
     @PutMapping("/{id}")
     ResponseEntity<ApiResponse<VariantValueResponse>> update(
-            @PathVariable String id, @RequestBody @Valid VariantValueRequest request) {
+            @PathVariable UUID id, @RequestBody @Valid VariantValueRequest request) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Update variant value", variantValueService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<String>> delete(@PathVariable String id) {
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable UUID id) {
         variantValueService.delete(id);
         return ResponseEntity.ok().body(ApiResponse.ok("Delete variant value", "success"));
     }

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -19,5 +20,5 @@ import java.util.List;
 public class DeleteAllRequest {
 
     @Schema(description = "List of entity ids to delete.")
-    List<String> ids;
+    List<UUID> ids;
 }

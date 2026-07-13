@@ -14,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -47,9 +48,9 @@ public class ProductCreationRequest {
     String shortDes;
 
     @Schema(description = "Id of the parent category.")
-    String categoryId;
+    UUID categoryId;
 
     @Schema(description = "List of tag ids associated with this product.")
-    List<String> tagsId;
+    List<UUID> tagsId;
 
 }

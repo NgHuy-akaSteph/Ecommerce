@@ -14,6 +14,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -35,7 +37,7 @@ public class CartDetailServiceImpl implements CartDetailService {
 
     @Override
     @Transactional(readOnly = true)
-    public CartDetail fetchById(String cartDetailId) {
+    public CartDetail fetchById(UUID cartDetailId) {
         return cartDetailRepository.findById(cartDetailId).
                 orElseThrow(() -> new AppException(ErrorCode.CART_DETAIL_NOT_EXISTED));
     }
@@ -48,7 +50,7 @@ public class CartDetailServiceImpl implements CartDetailService {
 
     @Override
     @Transactional
-    public void delete(String cartDetailId) {
+    public void delete(UUID cartDetailId) {
         cartDetailRepository.deleteById(cartDetailId);
     }
 }

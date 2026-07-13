@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @Tag(name = "Orders", description = "Order placement and management")
 @RequestMapping("/orderdetails")
@@ -51,20 +53,20 @@ public class OrderDetailController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<OrderDetailResponse>> getOrderDetail(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<OrderDetailResponse>> getOrderDetail(@PathVariable("id") UUID id) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get a order detail successfully", orderDetailService.getById(id)));
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<OrderDetailResponse>> update(@PathVariable("id") String id,
+    ResponseEntity<ApiResponse<OrderDetailResponse>> update(@PathVariable("id") UUID id,
                                                            @RequestBody @Valid OrderDetailRequest request) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Update a order detail successfully", orderDetailService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") UUID id) {
         orderDetailService.delete(id);
         return ResponseEntity.ok().body(ApiResponse.ok("Delete a order detail successfully", "success"));
     }

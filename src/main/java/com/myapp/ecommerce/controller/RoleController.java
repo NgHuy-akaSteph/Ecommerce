@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @Tag(name = "Admin", description = "Roles, permissions, and reports")
 @RequestMapping("/roles")
@@ -48,19 +50,19 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<RoleResponse>> getRole(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<RoleResponse>> getRole(@PathVariable("id") UUID id) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get role successfully", roleService.getDetails(id)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<String>> deleteRole(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<UUID>> deleteRole(@PathVariable("id") UUID id) {
         roleService.delete(id);
-        return ResponseEntity.ok().body(ApiResponse.ok("Delete role successfully", "success"));
+        return ResponseEntity.ok().body(ApiResponse.ok("Delete role successfully", id));
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<RoleResponse>> updateRole(@PathVariable("id") String id,
+    ResponseEntity<ApiResponse<RoleResponse>> updateRole(@PathVariable("id") UUID id,
                                                          @RequestBody @Valid RoleRequest request) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Update role successfully", roleService.update(id, request)));

@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/orders")
 @RequiredArgsConstructor
@@ -59,20 +61,20 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<OrderResponse>> getOrder(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<OrderResponse>> getOrder(@PathVariable("id") UUID id) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get a order successfully", orderService.getById(id)));
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<OrderResponse>> update(@PathVariable("id") String id,
+    ResponseEntity<ApiResponse<OrderResponse>> update(@PathVariable("id") UUID id,
                                                      @RequestBody @Valid OrderUpdateRequest request) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Update a order successfully", orderService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") UUID id) {
         orderService.delete(id);
         return ResponseEntity.ok().body(ApiResponse.ok("Delete a order successfully", "success"));
     }

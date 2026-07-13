@@ -7,7 +7,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
-public interface OrderDetailRepository extends JpaRepository<OrderDetail, String> {
+public interface OrderDetailRepository extends JpaRepository<OrderDetail, UUID> {
     Page<OrderDetail> findAll(Specification<OrderDetail> spec, Pageable pageable);
 }

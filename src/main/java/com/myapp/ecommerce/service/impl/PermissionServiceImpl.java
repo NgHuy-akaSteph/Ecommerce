@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +45,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     @Transactional
-    public PermissionResponse update(String id, PermissionRequest request) {
+    public PermissionResponse update(UUID id, PermissionRequest request) {
         log.info("Update a permission with id: {}", id);
 
         Permission entityDB = permissionRepository.findById(id)
@@ -59,7 +60,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     @Transactional
-    public void delete(String id) {
+    public void delete(UUID id) {
         log.info("Delete a permission with id: {}", id);
 
         Permission entityDB = permissionRepository.findById(id)
@@ -71,7 +72,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     @Transactional(readOnly = true)
-    public PermissionResponse getDetail(String id) {
+    public PermissionResponse getDetail(UUID id) {
         log.info("Get detail a permission with id: {}", id);
 
         Permission entityDB = permissionRepository.findById(id)
@@ -103,7 +104,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Permission> fetchPermissionsByIds(List<String> ids) {
+    public List<Permission> fetchPermissionsByIds(List<UUID> ids) {
         return permissionRepository.findAllById(ids);
     }
 }

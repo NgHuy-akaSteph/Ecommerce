@@ -9,10 +9,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, String> {
-    List<Order> findByIdIn(List<String> ids);
+public interface OrderRepository extends JpaRepository<Order, UUID> {
+    List<Order> findByIdIn(List<UUID> ids);
     Page<Order> findByUser(User user, Pageable pageable);
 
     Page<Order> findAll(Specification<Order> spec, Pageable pageable);

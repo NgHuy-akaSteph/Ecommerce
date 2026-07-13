@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/carts")
 @RequiredArgsConstructor
@@ -48,7 +50,7 @@ public class CartController {
     }
 
     @DeleteMapping("/delete/{id}")
-    ResponseEntity<ApiResponse<CartResponse>> deleteProductFromCart(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<CartResponse>> deleteProductFromCart(@PathVariable("id") UUID id) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Delete cart detail from cart successfully", cartService.handleRemoveCartDetail(id)));
     }

@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/tags")
 @RequiredArgsConstructor
@@ -49,19 +51,19 @@ public class TagController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<TagResponse>> getDetails(@PathVariable("id") String tagId) {
+    ResponseEntity<ApiResponse<TagResponse>> getDetails(@PathVariable("id") UUID tagId) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Get details of a tag", this.tagService.getDetails(tagId)));
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<ApiResponse<TagResponse>> update(@PathVariable("id") String tagId, @RequestBody @Valid TagRequest tagRequest) {
+    ResponseEntity<ApiResponse<TagResponse>> update(@PathVariable("id") UUID tagId, @RequestBody @Valid TagRequest tagRequest) {
         return ResponseEntity.ok()
                 .body(ApiResponse.ok("Update a tag by id", this.tagService.update(tagId, tagRequest)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") String tagId) {
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") UUID tagId) {
         this.tagService.delete(tagId);
         return ResponseEntity.ok().body(ApiResponse.ok("Delete a tag by id", "success"));
     }
