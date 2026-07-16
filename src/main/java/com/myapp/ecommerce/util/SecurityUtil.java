@@ -21,7 +21,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -46,8 +45,6 @@ import java.util.Optional;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class SecurityUtil {
-
-    public static SignatureAlgorithm JWT_ALGORITHM = SignatureAlgorithm.RS256;
 
     @Value("${app.jwt.private-key-path}")
     @NonFinal
@@ -89,7 +86,7 @@ public class SecurityUtil {
         }
     }
 
-    public RSASSAVerifier buildVerifier() throws JOSEException {
+    public RSASSAVerifier buildVerifier() {
         return new RSASSAVerifier(loadPublicKey());
     }
 

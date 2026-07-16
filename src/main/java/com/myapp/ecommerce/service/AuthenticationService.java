@@ -16,7 +16,6 @@ import com.myapp.ecommerce.repository.UserRepository;
 import com.myapp.ecommerce.util.SecurityUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +38,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -62,10 +62,6 @@ public class AuthenticationService {
     @NonFinal
     long tokenExpiration;
 
-    /**
-     * Result record for login/refresh operations that includes tokens
-     * and expiration for cookie creation in the controller.
-     */
     public record LoginResult(AuthenticationResponse response, String refreshToken, long tokenExpiration) {}
 
     @Transactional(readOnly = true)
@@ -74,7 +70,7 @@ public class AuthenticationService {
         boolean isValid = true;
 
         try {
-            verifyToken(token, false);
+            verifyAccessToken(token);
         } catch (AppException e) {
             isValid = false;
         }
@@ -85,42 +81,39 @@ public class AuthenticationService {
     @Transactional
     public LoginResult login(AuthenticationRequest request) throws JOSEException {
         User existingUser = userService.getUserByUsernameOrEmail(request.getUsername());
-
+        if (existingUser == null) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
         if (existingUser.getLockedUntil() != null && existingUser.getLockedUntil().isAfter(Instant.now())) {
             throw new AppException(ErrorCode.ACCOUNT_LOCKED);
         }
 
-        synchronized (this) {
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    request.getUsername(), request.getPassword()
-            );
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                request.getUsername(), request.getPassword()
+        );
 
-            try {
-                Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            existingUser.setFailedLoginAttempts(0);
+            existingUser.setLockedUntil(null);
+            userRepository.save(existingUser);
+        } catch (BadCredentialsException e) {
+            int attempts = (existingUser.getFailedLoginAttempts() == null ? 0 : existingUser.getFailedLoginAttempts()) + 1;
+            existingUser.setFailedLoginAttempts(attempts);
+            if (attempts >= 5) {
+                existingUser.setLockedUntil(Instant.now().plus(15, ChronoUnit.MINUTES));
                 existingUser.setFailedLoginAttempts(0);
-                existingUser.setLockedUntil(null);
-                userRepository.save(existingUser);
-            } catch (BadCredentialsException e) {
-                int attempts = (existingUser.getFailedLoginAttempts() == null ? 0 : existingUser.getFailedLoginAttempts()) + 1;
-                existingUser.setFailedLoginAttempts(attempts);
-                if (attempts >= 5) {
-                    existingUser.setLockedUntil(Instant.now().plus(15, ChronoUnit.MINUTES));
-                    existingUser.setFailedLoginAttempts(0);
-                }
-                userRepository.save(existingUser);
-                throw new AppException(ErrorCode.BAD_CREDENTIALS);
             }
+            userRepository.save(existingUser);
+            throw new AppException(ErrorCode.BAD_CREDENTIALS);
         }
 
-        User currentUser = userService.getUserByUsernameOrEmail(request.getUsername());
         AuthenticationResponse authResponse = new AuthenticationResponse();
-        if (currentUser != null) {
-            authResponse.setUser(userMapper.toUserResponse(currentUser));
-        }
+        authResponse.setUser(userMapper.toUserResponse(existingUser));
 
-        String canonicalUsername = currentUser.getUsername();
+        String canonicalUsername = existingUser.getUsername();
         String accessToken = securityUtil.generateAccessToken(canonicalUsername, authResponse.getUser());
         authResponse.setAccessToken(accessToken);
 
@@ -173,7 +166,7 @@ public class AuthenticationService {
             user.setEmailVerified(true);
             userRepository.save(user);
         }
-        return ApiResponse.<Void>ok("Email verified successfully", null);
+        return ApiResponse.ok("Email verified successfully", null);
     }
 
     @Transactional
@@ -182,14 +175,14 @@ public class AuthenticationService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (user.isEmailVerified()) {
-            return ApiResponse.<Void>ok("Email already verified", null);
+            return ApiResponse.ok("Email already verified", null);
         }
 
         EmailVerification verification = emailVerificationService.createToken(
                 user, email, VerificationType.EMAIL_VERIFY);
 
         emailService.sendVerificationEmail(email, user.getName(), verification.getToken());
-        return ApiResponse.<Void>ok("Verification email sent", null);
+        return ApiResponse.ok("Verification email sent", null);
     }
 
     @Transactional
@@ -199,14 +192,14 @@ public class AuthenticationService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (user.isEmailVerified()) {
-            return ApiResponse.<Void>ok("Email already verified", null);
+            return ApiResponse.ok("Email already verified", null);
         }
 
         EmailVerification verification = emailVerificationService.createToken(
                 user, user.getEmail(), VerificationType.EMAIL_VERIFY);
 
         emailService.sendVerificationEmail(user.getEmail(), user.getName(), verification.getToken());
-        return ApiResponse.<Void>ok("Verification email sent", null);
+        return ApiResponse.ok("Verification email sent", null);
     }
 
     @Transactional(readOnly = true)
@@ -304,19 +297,15 @@ public class AuthenticationService {
     }
 
 
-    private SignedJWT verifyToken(String token, boolean isRefresh) throws ParseException, JOSEException {
+    private void verifyAccessToken(String token) throws ParseException, JOSEException {
+        if (token == null || token.isBlank()) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
         JWSVerifier verifier = securityUtil.buildVerifier();
         SignedJWT signedJWT = SignedJWT.parse(token);
+        Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
 
-        Date expirationTime = (isRefresh)
-                ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
-                    .toInstant().plus(tokenExpiration, ChronoUnit.SECONDS)
-                    .toEpochMilli())
-                : signedJWT.getJWTClaimsSet().getExpirationTime();
-
-        boolean verified = signedJWT.verify(verifier);
-
-        if (!verified) {
+        if (signedJWT.verify(verifier)) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
@@ -324,11 +313,8 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
-        Boolean hasKey = stringRedisTemplate.hasKey("revoked_token:" + token);
-        if (hasKey) {
+        if (Objects.equals(stringRedisTemplate.hasKey("revoked_token:" + token), true)) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-
-        return signedJWT;
     }
 }
