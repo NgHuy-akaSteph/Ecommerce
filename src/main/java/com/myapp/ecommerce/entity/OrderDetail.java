@@ -41,4 +41,7 @@ public class OrderDetail extends BaseEntity {
     @JoinColumn(name="product_id")
     Product product;
 
+    @ManyToOne
+    @JoinColumn(name="variant_id", columnDefinition = "uuid")
+    ProductVariant variant;
 }

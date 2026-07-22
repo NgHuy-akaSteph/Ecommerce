@@ -24,7 +24,6 @@ public class ProductResponse {
     String id;
     String name;
     String thumbnail;
-    long quantity;
     BigDecimal discount;
     List<String> sliders;
     BigDecimal price;

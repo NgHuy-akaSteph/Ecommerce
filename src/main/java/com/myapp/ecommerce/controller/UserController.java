@@ -3,13 +3,13 @@ package com.myapp.ecommerce.controller;
 import com.myapp.ecommerce.dto.request.UserCreationRequest;
 import com.myapp.ecommerce.dto.request.UserUpdateRequest;
 import com.myapp.ecommerce.dto.response.ApiPagination;
-import com.myapp.ecommerce.dto.response.ApiString;
+import com.myapp.ecommerce.dto.response.ApiResponse;
 import com.myapp.ecommerce.dto.response.UserResponse;
 import com.myapp.ecommerce.entity.User;
 import com.myapp.ecommerce.service.UserService;
-import com.myapp.ecommerce.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,50 +27,49 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
+@Tag(name = "Users", description = "User profile and management")
 public class UserController {
 
     UserService userService;
 
     @PostMapping
-    @ApiMessage("Create a new user")
-    ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createUser(request));
+    ResponseEntity<ApiResponse<UserResponse>> createUser(@RequestBody @Valid UserCreationRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("Create a new user", this.userService.createUser(request)));
     }
 
     @GetMapping
-    @ApiMessage("Get all users")
-    ResponseEntity<ApiPagination<UserResponse>> getUsers(@Filter Specification<User> spec, Pageable pageable) {
-        return ResponseEntity.ok(this.userService.getAllUsers(spec, pageable));
+    ResponseEntity<ApiResponse<ApiPagination<UserResponse>>> getUsers(@Filter Specification<User> spec, Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.ok("Get all users", this.userService.getAllUsers(spec, pageable)));
     }
 
     @GetMapping("/{id}")
-    @ApiMessage("Get detail of a user")
-    UserResponse getUser(@PathVariable("id") String userId) {
-        return userService.getUserById(userId);
+    ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable("id") UUID userId) {
+        return ResponseEntity.ok(ApiResponse.ok("Get detail of a user", userService.getUserById(userId)));
     }
 
     @GetMapping("/my-info")
-    @ApiMessage("Get my information")
-    ResponseEntity<UserResponse> getMyInfo() {
-        return ResponseEntity.ok().body(this.userService.getMyInfo());
+    ResponseEntity<ApiResponse<UserResponse>> getMyInfo() {
+        return ResponseEntity.ok().body(ApiResponse.ok("Get my information", this.userService.getMyInfo()));
     }
 
     @DeleteMapping("/{id}")
-    @ApiMessage("Delete a user")
-    ResponseEntity<ApiString> delete(@PathVariable("id") String userId) {
+    ResponseEntity<ApiResponse<String>> delete(@PathVariable("id") UUID userId) {
         userService.delete(userId);
-        return ResponseEntity.ok().body(new ApiString("User deleted successfully"));
+        return ResponseEntity.ok().body(ApiResponse.ok("Delete a user", "User deleted successfully"));
     }
 
     @PutMapping("/{id}")
-    @ApiMessage("Update a user")
-    ResponseEntity<UserResponse> update(@PathVariable("id") String userId,
-                                        @RequestBody UserUpdateRequest request) {
-        return ResponseEntity.ok().body(userService.update(userId, request));
+    ResponseEntity<ApiResponse<UserResponse>> update(@PathVariable("id") UUID userId,
+                                                     @RequestBody UserUpdateRequest request) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Update a user", userService.update(userId, request)));
     }
 }

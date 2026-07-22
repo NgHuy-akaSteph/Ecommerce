@@ -7,12 +7,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Optional;
 
 
 /**
@@ -21,8 +19,6 @@ import java.util.Optional;
  */
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
-
-    private final AuthenticationEntryPoint delegate = new BearerTokenAuthenticationEntryPoint();
 
     private final ObjectMapper objectMapper;
 
@@ -35,21 +31,14 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
 
-        //Call BearerTokenAuthenticationEntryPoint to handle the first part of the exception
-        delegate.commence(request, response, authException);
-
         response.setContentType("application/json;charset=UTF-8");
-
-        //Check if the exception has a cause, if not, use the exception message
-        String errorMessage = Optional.ofNullable(authException.getCause())
-                .map(Throwable::getMessage).orElse(authException.getMessage());
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
 
         ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(false)
                 .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .message("Token is invalid or expired")
-                .error(errorMessage)
                 .build();
-        // Write the response to the client
         objectMapper.writeValue(response.getWriter(), apiResponse);
     }
 }

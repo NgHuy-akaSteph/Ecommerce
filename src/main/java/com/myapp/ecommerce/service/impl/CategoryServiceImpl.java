@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryResponse update(String categoryId, CategoryRequest request) {
+    public CategoryResponse update(UUID categoryId, CategoryRequest request) {
         log.info("Update a category");
         if(categoryRepository.existsByName(request.getName())) {
             throw new AppException(ErrorCode.CATEGORY_EXISTED);
@@ -65,7 +66,8 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse getDetails(String categoryId) {
+    @Transactional(readOnly = true)
+    public CategoryResponse getDetails(UUID categoryId) {
         log.info("Get details of a category");
 
         Category category = categoryRepository.findById(categoryId)
@@ -74,6 +76,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiPagination<CategoryResponse> getAll(Specification<Category> spec, Pageable pageable) {
         log.info("Get all categories");
 
@@ -95,7 +98,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public void delete(String categoryId) {
+    public void delete(UUID categoryId) {
         log.info("Delete a category");
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));

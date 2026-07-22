@@ -42,4 +42,8 @@ public class CartDetail extends BaseEntity {
     @ManyToOne
     @JoinColumn(name="product_id")
     Product product;
+
+    @ManyToOne
+    @JoinColumn(name="variant_id", columnDefinition = "uuid")
+    ProductVariant variant;
 }

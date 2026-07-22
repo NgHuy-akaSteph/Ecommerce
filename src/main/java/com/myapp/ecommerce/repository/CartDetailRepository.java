@@ -3,15 +3,19 @@ package com.myapp.ecommerce.repository;
 import com.myapp.ecommerce.entity.Cart;
 import com.myapp.ecommerce.entity.CartDetail;
 import com.myapp.ecommerce.entity.Product;
+import com.myapp.ecommerce.entity.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface CartDetailRepository extends JpaRepository<CartDetail, String> {
+public interface CartDetailRepository extends JpaRepository<CartDetail, UUID> {
 
     CartDetail findByCartAndProduct(Cart cart, Product product);
 
-    List<CartDetail> findByIdIn(List<String> ids);
+    CartDetail findByCartAndProductAndVariant(Cart cart, Product product, ProductVariant variant);
+
+    List<CartDetail> findByIdIn(List<UUID> ids);
 }

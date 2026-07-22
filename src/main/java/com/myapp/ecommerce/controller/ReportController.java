@@ -1,7 +1,8 @@
 package com.myapp.ecommerce.controller;
 
+import com.myapp.ecommerce.dto.response.ApiResponse;
 import com.myapp.ecommerce.service.FileStorageService;
-import com.myapp.ecommerce.util.annotation.ApiMessage;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,16 +19,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Tag(name = "Admin", description = "Roles, permissions, and reports")
 public class ReportController {
 
     FileStorageService fileStorageService;
 
     @GetMapping("/download-url")
     @PreAuthorize("hasRole('ADMIN')")
-    @ApiMessage("Generate secure download URL successfully")
-    public ResponseEntity<String> getDownloadUrl(@RequestParam String fileKey) {
+    public ResponseEntity<ApiResponse<String>> getDownloadUrl(@RequestParam String fileKey) {
         log.info("Generating secure download URL for key: {}", fileKey);
         String presignedUrl = fileStorageService.generatePresignedUrl(fileKey, 15);
-        return ResponseEntity.ok(presignedUrl);
+        return ResponseEntity.ok(ApiResponse.ok("Generate secure download URL successfully", presignedUrl));
     }
 }

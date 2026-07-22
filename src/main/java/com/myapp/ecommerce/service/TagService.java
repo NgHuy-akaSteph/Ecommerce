@@ -7,18 +7,19 @@ import com.myapp.ecommerce.entity.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.UUID;
 
 public interface TagService {
 
     TagResponse create(TagRequest request);
 
-    TagResponse update(String tagId, TagRequest request);
+    TagResponse update(UUID tagId, TagRequest request);
 
-    TagResponse getDetails(String tagId);
+    TagResponse getDetails(UUID tagId);
 
     ApiPagination<TagResponse> getAll(Specification<Tag> spec, Pageable pageable);
 
-    void delete(String tagId);
+    void delete(UUID tagId);
 
     Tag findByName(String tagName);
 }

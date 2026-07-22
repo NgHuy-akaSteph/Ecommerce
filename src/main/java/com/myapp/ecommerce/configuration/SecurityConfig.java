@@ -19,7 +19,13 @@ import com.myapp.ecommerce.filter.RateLimitingFilter;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/", "/auth/login", "/auth/register", "/auth/refresh"
+            "/", "/auth/login", "/auth/register", "/auth/refresh",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/webjars/**",
+            "/",
+            "/favicon.ico"
     };
 
     private final String[] PUBLIC_GET_ENDPOINTS = {

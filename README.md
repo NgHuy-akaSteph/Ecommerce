@@ -86,8 +86,11 @@ Once the application is running, you can access the Swagger UI to interactively 
 The database schema and initial seed data are managed automatically by **Flyway**.
 When the application starts, it checks the `src/main/resources/db/migration/` directory and executes any pending SQL scripts.
 
-* `V1__init-schema.sql`: Creates all tables, indexes, and relationships.
+* `V1__core_schema.sql`: Creates all core tables, indexes, and relationships.
 * `V2__seed-data.sql`: Seeds default permissions, roles (ADMIN/USER), and the default admin user.
+* `V3__product_variants.sql`: Adds product variants and variant option tables.
+* `V4__media.sql`: Adds media, attachments, and export job tables.
+* `V5__auth_verification_and_addresses.sql`: Adds email verification and address tables.
 
 ## 📁 File Uploads (Cloudflare R2)
 

@@ -26,8 +26,23 @@ public class OrderDetailResponse {
     long quantity;
     BigDecimal price;
     ProductResponse product;
+    VariantInfo variant;
     Instant createdAt;
     Instant updatedAt;
     String createdBy;
     String updatedBy;
+
+    @lombok.experimental.FieldDefaults(level = AccessLevel.PRIVATE)
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    @lombok.Builder
+    @lombok.Data
+    @JsonPropertyOrder(alphabetic = true)
+    public static class VariantInfo {
+        @JsonProperty("_id")
+        String id;
+        String sku;
+        long quantity;
+        BigDecimal price;
+    }
 }

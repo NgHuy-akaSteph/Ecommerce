@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +45,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @Transactional
-    public TagResponse update(String tagId, TagRequest request) {
+    public TagResponse update(UUID tagId, TagRequest request) {
         log.info("Update a tag");
 
         Tag tagDB = tagRepository.findById(tagId).
@@ -54,7 +55,8 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public TagResponse getDetails(String tagId) {
+    @Transactional(readOnly = true)
+    public TagResponse getDetails(UUID tagId) {
         log.info("Get details of a tag");
         Tag tagDB = tagRepository.findById(tagId).
                 orElseThrow(() -> new AppException(ErrorCode.TAG_NOT_FOUND));
@@ -62,6 +64,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiPagination<TagResponse> getAll(Specification<Tag> spec, Pageable pageable) {
         log.info("Get all tags");
         Page<Tag> tagPage = tagRepository.findAll(spec, pageable);
@@ -81,7 +84,8 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public void delete(String tagId) {
+    @Transactional
+    public void delete(UUID tagId) {
         log.info("Delete a tag");
         Tag tag = tagRepository.findById(tagId).
                 orElseThrow(() -> new AppException(ErrorCode.TAG_NOT_FOUND));
@@ -94,6 +98,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Tag findByName(String tagName) {
         return tagRepository.findByName(tagName);
     }

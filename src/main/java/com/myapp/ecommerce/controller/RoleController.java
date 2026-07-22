@@ -3,11 +3,12 @@ package com.myapp.ecommerce.controller;
 
 import com.myapp.ecommerce.dto.request.RoleRequest;
 import com.myapp.ecommerce.dto.response.ApiPagination;
-import com.myapp.ecommerce.dto.response.ApiString;
+import com.myapp.ecommerce.dto.response.ApiResponse;
 import com.myapp.ecommerce.dto.response.RoleResponse;
 import com.myapp.ecommerce.entity.Role;
 import com.myapp.ecommerce.service.RoleService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,7 +26,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
+@Tag(name = "Admin", description = "Roles, permissions, and reports")
 @RequestMapping("/roles")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -34,29 +38,33 @@ public class RoleController {
     RoleService roleService;
 
     @PostMapping
-    ResponseEntity<RoleResponse> createRole(@RequestBody @Valid RoleRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(roleService.create(request));
+    ResponseEntity<ApiResponse<RoleResponse>> createRole(@RequestBody @Valid RoleRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("Create role successfully", roleService.create(request)));
     }
 
     @GetMapping
-    ResponseEntity<ApiPagination<RoleResponse>> getRoles(@Filter Specification<Role> spec, Pageable pageable) {
-        return ResponseEntity.ok().body(roleService.getAll(spec, pageable));
+    ResponseEntity<ApiResponse<ApiPagination<RoleResponse>>> getRoles(@Filter Specification<Role> spec, Pageable pageable) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Get roles successfully", roleService.getAll(spec, pageable)));
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<RoleResponse> getRole(@PathVariable("id") String id) {
-        return ResponseEntity.ok().body(roleService.getDetails(id));
+    ResponseEntity<ApiResponse<RoleResponse>> getRole(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Get role successfully", roleService.getDetails(id)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiString> deleteRole(@PathVariable("id") String id) {
+    ResponseEntity<ApiResponse<UUID>> deleteRole(@PathVariable("id") UUID id) {
         roleService.delete(id);
-        return ResponseEntity.ok().body(ApiString.builder().message("success").build());
+        return ResponseEntity.ok().body(ApiResponse.ok("Delete role successfully", id));
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<RoleResponse> updateRole(@PathVariable("id") String id,
-                                            @RequestBody @Valid RoleRequest request) {
-        return ResponseEntity.ok().body(roleService.update(id, request));
+    ResponseEntity<ApiResponse<RoleResponse>> updateRole(@PathVariable("id") UUID id,
+                                                         @RequestBody @Valid RoleRequest request) {
+        return ResponseEntity.ok()
+                .body(ApiResponse.ok("Update role successfully", roleService.update(id, request)));
     }
 }

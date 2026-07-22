@@ -3,6 +3,7 @@ package com.myapp.ecommerce.service.impl;
 import com.myapp.ecommerce.entity.Cart;
 import com.myapp.ecommerce.entity.CartDetail;
 import com.myapp.ecommerce.entity.Product;
+import com.myapp.ecommerce.entity.ProductVariant;
 import com.myapp.ecommerce.exception.AppException;
 import com.myapp.ecommerce.exception.ErrorCode;
 import com.myapp.ecommerce.repository.CartDetailRepository;
@@ -13,6 +14,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -21,12 +24,20 @@ public class CartDetailServiceImpl implements CartDetailService {
     CartDetailRepository cartDetailRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public CartDetail fetchByCartAndProduct(Cart cart, Product product) {
         return cartDetailRepository.findByCartAndProduct(cart, product);
     }
 
     @Override
-    public CartDetail fetchById(String cartDetailId) {
+    @Transactional(readOnly = true)
+    public CartDetail fetchByCartAndProductAndVariant(Cart cart, Product product, ProductVariant variant) {
+        return cartDetailRepository.findByCartAndProductAndVariant(cart, product, variant);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CartDetail fetchById(UUID cartDetailId) {
         return cartDetailRepository.findById(cartDetailId).
                 orElseThrow(() -> new AppException(ErrorCode.CART_DETAIL_NOT_EXISTED));
     }
@@ -39,7 +50,7 @@ public class CartDetailServiceImpl implements CartDetailService {
 
     @Override
     @Transactional
-    public void delete(String cartDetailId) {
+    public void delete(UUID cartDetailId) {
         cartDetailRepository.deleteById(cartDetailId);
     }
 }

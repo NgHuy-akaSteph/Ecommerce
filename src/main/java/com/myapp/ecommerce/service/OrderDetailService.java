@@ -7,15 +7,17 @@ import com.myapp.ecommerce.entity.OrderDetail;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.UUID;
+
 public interface OrderDetailService {
 
     OrderDetailResponse create(OrderDetailRequest request);
 
-    OrderDetailResponse update(String id, OrderDetailRequest request);
+    OrderDetailResponse update(UUID id, OrderDetailRequest request);
 
-    OrderDetailResponse getById(String id);
+    OrderDetailResponse getById(UUID id);
 
     ApiPagination<OrderDetailResponse> getAll(Specification<OrderDetail> spec, Pageable pageable);
 
-    void delete(String id);
+    void delete(UUID id);
 }

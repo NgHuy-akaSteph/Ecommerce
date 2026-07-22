@@ -1,13 +1,16 @@
 package com.myapp.ecommerce.entity;
 
+import java.time.Instant;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,8 +20,6 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-
-import java.util.List;
 
 @Setter
 @Getter
@@ -40,11 +41,23 @@ public class User extends BaseEntity {
 
     String password;
     String name;
-    String address;
+
+    @Column(unique = true)
+    String email;
+
+    @Builder.Default
+    boolean emailVerified = false;
+
+    String avatarUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     Role role;
+
+    @Builder.Default
+    Integer failedLoginAttempts = 0;
+
+    Instant lockedUntil;
 
     @OneToOne(mappedBy = "user")
     Cart cart;
